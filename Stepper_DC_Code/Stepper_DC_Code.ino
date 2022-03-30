@@ -68,12 +68,12 @@ void stepper(int direction, int steps){
 }
 
 void dcMotor(String directionDC, int speedDC){
-  if(directionDC == "UP"){
+  if(directionDC == "LEFT"){
     analogWrite(dcInputOnePin, speedDC);
     analogWrite(dcInputTwoPin, 0);
   }
 
-  if(directionDC == "DOWN"){
+  if(directionDC == "RIGHT"){
     analogWrite(dcInputOnePin, 0);
     analogWrite(dcInputTwoPin, speedDC);
   }
