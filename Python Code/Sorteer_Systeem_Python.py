@@ -30,54 +30,56 @@ def openButtonWindow():
     buttonPosition3.pack(side=LEFT, padx=5, pady=5)
 
 
-Grid.rowconfigure(windowMain, 0, weight=1)
 Grid.rowconfigure(windowMain, 1, weight=1)
+Grid.rowconfigure(windowMain, 2, weight=1)
+Grid.rowconfigure(windowMain, 4, weight=1)
+
 Grid.columnconfigure(windowMain, 0, weight=1)
 Grid.columnconfigure(windowMain, 1, weight=1)
 
-frameRegister = Frame(windowMain)
-frameSortingButtonModes = Frame(windowMain)
-frameWaitlist = Frame(windowMain)
-frameMessages = Frame(windowMain)
+# frameRegister = Frame(windowMain)
+# frameSortingButtonModes = Frame(windowMain)
+# frameWaitlist = Frame(windowMain)
+# frameMessages = Frame(windowMain)
 
-frameSortingButtonModes.grid(column=0, columnspan=1, row=0, rowspan=1)
-frameRegister.grid(column=1, columnspan=2, row=0, rowspan=2)
-frameWaitlist.grid(column=1, columnspan=1, row=1, rowspan=1)
-frameMessages.grid(column=0, columnspan=1, row=1, rowspan=1)
+# frameSortingButtonModes.grid(column=0, columnspan=1, row=0, rowspan=1)
+# frameRegister.grid(column=1, columnspan=2, row=0, rowspan=2)
+# frameWaitlist.grid(column=1, columnspan=1, row=1, rowspan=1)
+# frameMessages.grid(column=0, columnspan=1, row=1, rowspan=1)
 
 ############################Register componenten############################
-labelRegister = Label(frameRegister, text="Register:")
-listBoxRegister = Listbox(frameRegister, width=100, height=12)
-scrollBarRegister = Scrollbar(frameRegister)
+labelRegister = Label(text="Register:")
+listBoxRegister = Listbox()
+scrollBarRegister = Scrollbar()
 
 ############################Sorteerknoppen componenten############################
-labelSortingButtons = Label(frameSortingButtonModes, text="Sorteer modus:")
-buttonAuto = Button(frameSortingButtonModes, text="Automatisch", width=50, height=4)
-buttonManual = Button(frameSortingButtonModes, text="Handmatig", width=50, height=4, command=openButtonWindow)
+labelSortingButtons = Label(text="Sorteer modus:")
+buttonAuto = Button(text="Automatisch")
+buttonManual = Button(text="Handmatig", command=openButtonWindow)
 
 ############################Wachtrij componenten############################
-labelWaitlist = Label(frameWaitlist, text="Wachtrij:")
-buttonWaitlist = Button(frameWaitlist, text="Wachtrij aanpassen", width=30, height=7)
-listBoxWaitlist = Listbox(frameWaitlist, width=65, height=4)
+labelWaitlist = Label(text="Wachtrij:")
+buttonWaitlist = Button(text="Wachtrij aanpassen")
+listBoxWaitlist = Listbox()
 
 ############################Meldingen componenten############################
-labelBoxMessages = Label(frameMessages, text="Meldingen:", width=60, height=4)
-listBoxMessages = Listbox(frameMessages, width=60, height=4)
+labelBoxMessages = Label(text="Meldingen:")
+listBoxMessages = Listbox()
 
 labelSortingButtons.grid(row=0, column=0)
-buttonAuto.grid(row=1, column=0)
-buttonManual.grid(row=2, column=0)
+buttonAuto.grid(row=1, column=0, sticky="nsew")
+buttonManual.grid(row=2, column=0, sticky="nsew")
 
-labelRegister.pack(side=TOP, padx=5, pady=5)
-listBoxRegister.pack(side=LEFT)
-scrollBarRegister.pack(side=RIGHT)
+labelRegister.grid(row=0, column=1)
+listBoxRegister.grid(row=1, column=1, columnspan=2, rowspan=2, sticky="nsew")
+scrollBarRegister.grid(row=0, column=2, rowspan=2, columnspan=1)
 
-labelWaitlist.grid(column=0, columnspan=1, row=0, rowspan=1)
-buttonWaitlist.grid(column=3, columnspan=2, row=0, rowspan=2)
-listBoxWaitlist.grid(column=0, columnspan=2, row=1, rowspan=1)
+labelWaitlist.grid(column=1, columnspan=2, row=3, rowspan=1)
+buttonWaitlist.grid(column=2, columnspan=1, row=3, rowspan=2, sticky="nsew")
+listBoxWaitlist.grid(column=1, columnspan=2, row=4, rowspan=1, sticky="nsew")
 
-listBoxMessages.grid(column=0, row=1)
-labelBoxMessages.grid(column=0, row=0)
+listBoxMessages.grid(column=0, row=4, sticky="nsew")
+labelBoxMessages.grid(column=0, row=3)
 
 windowMain.protocol("WM_DELETE_WINDOW", quit)
 windowMain.mainloop()
