@@ -132,3 +132,5 @@ dmypy.json
 *.xml
 
 .venv
+
+*.idea
