@@ -130,3 +130,5 @@ dmypy.json
 
 *.iml
 *.xml
+
+.venv
