@@ -50,7 +50,6 @@ Grid.columnconfigure(windowMain, 1, weight=1)
 ############################Register componenten############################
 labelRegister = Label(text="Register:")
 listBoxRegister = Listbox()
-scrollBarRegister = Scrollbar()
 
 ############################Sorteerknoppen componenten############################
 labelSortingButtons = Label(text="Sorteer modus:")
@@ -70,16 +69,18 @@ labelSortingButtons.grid(row=0, column=0)
 buttonAuto.grid(row=1, column=0, sticky="nsew")
 buttonManual.grid(row=2, column=0, sticky="nsew")
 
-labelRegister.grid(row=0, column=1)
+labelRegister.grid(row=0, column=1, columnspan=2)
 listBoxRegister.grid(row=1, column=1, columnspan=2, rowspan=2, sticky="nsew")
-scrollBarRegister.grid(row=0, column=2, rowspan=2, columnspan=1)
 
 labelWaitlist.grid(column=1, columnspan=2, row=3, rowspan=1)
-buttonWaitlist.grid(column=2, columnspan=1, row=3, rowspan=2, sticky="nsew")
+buttonWaitlist.grid(column=2, columnspan=1, row=4, rowspan=1, sticky="nsew")
 listBoxWaitlist.grid(column=1, columnspan=2, row=4, rowspan=1, sticky="nsew")
 
 listBoxMessages.grid(column=0, row=4, sticky="nsew")
 labelBoxMessages.grid(column=0, row=3)
+
+# for i in range(100):
+#     listBoxRegister.insert(i, "Nummer" + str(i))
 
 windowMain.protocol("WM_DELETE_WINDOW", quit)
 windowMain.mainloop()
