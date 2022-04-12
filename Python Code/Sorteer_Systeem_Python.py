@@ -1,8 +1,10 @@
 from tkinter import *
 from tkinter.ttk import Style
+from time import sleep
 
 windowMain = Tk()
-
+fontSize = 15
+fontText = ("Calibri", fontSize)
 
 def openButtonWindow():
     # Toplevel object which will
@@ -32,7 +34,8 @@ def openButtonWindow():
 
 Grid.rowconfigure(windowMain, 1, weight=1)
 Grid.rowconfigure(windowMain, 2, weight=1)
-Grid.rowconfigure(windowMain, 4, weight=1)
+Grid.rowconfigure(windowMain, 3, weight=1)
+Grid.rowconfigure(windowMain, 5, weight=1)
 
 Grid.columnconfigure(windowMain, 0, weight=1)
 Grid.columnconfigure(windowMain, 1, weight=1)
@@ -54,40 +57,53 @@ Grid.columnconfigure(windowMain, 4, weight=1)
 labelRegister = Label(text="Register:")
 listBoxRegister = Listbox()
 
-labelRegister.grid(row=0, column=2, columnspan=3)
-listBoxRegister.grid(row=1, column=2, columnspan=3, rowspan=2, sticky="nsew")
+labelRegister.grid(row=0, column=2, columnspan=3, padx=5, pady=5)
+listBoxRegister.grid(row=1, column=2, columnspan=3, rowspan=3, sticky="nsew", padx=5, pady=5)
+
+
 
 ############################Sorteerknoppen componenten############################
 labelSortingButtons = Label(text="Sorteer modus:")
 buttonAuto = Button(text="Automatisch")
 buttonManual = Button(text="Handmatig", command=openButtonWindow)
 buttonStart = Button(text="Start", bg='green',fg='white')
-buttonStop = Button(text="Stop", bg="red", fg='white')
+buttonStop = Button(text="Stop", bg="#5A5A5A", fg='white')
+buttonEmergencyStop = Button(text="NOODSTOP", bg="red", fg='white')
 
-labelSortingButtons.grid(row=0, column=0, columnspan=2)
-buttonAuto.grid(row=2, column=0, columnspan=1, sticky="nsew")
-buttonManual.grid(row=2, column=1, columnspan=1, sticky="nsew")
-buttonStart.grid(row=1, column=0, columnspan=1, sticky="nsew")
-buttonStop.grid(row=1, column=1, columnspan=1, sticky="nsew")
+labelSortingButtons.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
+buttonAuto.grid(row=2, column=0, columnspan=1, sticky="nsew", padx=5, pady=5)
+buttonManual.grid(row=2, column=1, columnspan=1, sticky="nsew", padx=5, pady=5)
+buttonStart.grid(row=1, column=0, columnspan=1, sticky="nsew", padx=5, pady=5)
+buttonStop.grid(row=1, column=1, columnspan=1, sticky="nsew", padx=5, pady=5)
+buttonEmergencyStop.grid(row=3, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+
+buttonAuto.configure(font=fontText)
+buttonStop.configure(font=fontText)
+buttonStart.configure(font=fontText)
+buttonManual.configure(font=fontText)
+buttonEmergencyStop.configure(font=fontText)
 
 ############################Wachtrij componenten############################
 labelWaitlist = Label(text="Wachtrij:")
 buttonWaitlist = Button(text="Wachtrij aanpassen")
 listBoxWaitlist = Listbox()
 
-labelWaitlist.grid(column=2, columnspan=2, row=3, rowspan=1)
-listBoxWaitlist.grid(column=2, columnspan=2, row=4, rowspan=1, sticky="nsew")
-buttonWaitlist.grid(column=4, row=4, sticky="nsew")
+labelWaitlist.grid(column=2, columnspan=2, row=4, rowspan=1, padx=5, pady=5)
+listBoxWaitlist.grid(column=2, columnspan=2, row=5, rowspan=1, sticky="nsew", padx=5, pady=5)
+buttonWaitlist.grid(column=4, row=5, sticky="nsew", padx=5, pady=5)
+
+buttonWaitlist.configure(font=fontText)
 
 ############################Meldingen componenten############################
 labelBoxMessages = Label(text="Meldingen:")
 listBoxMessages = Listbox()
 
-labelBoxMessages.grid(column=0, row=3, columnspan=2, rowspan=1)
-listBoxMessages.grid(column=0, row=4, columnspan=2, rowspan=1, sticky="nsew")
+labelBoxMessages.grid(column=0, row=4, columnspan=2, rowspan=1, padx=5, pady=5)
+listBoxMessages.grid(column=0, row=5, columnspan=2, rowspan=1, sticky="nsew", padx=5, pady=5)
 
 # for i in range(100):
 #     listBoxRegister.insert(i, "Nummer" + str(i))
 
 windowMain.protocol("WM_DELETE_WINDOW", quit)
 windowMain.mainloop()
+
