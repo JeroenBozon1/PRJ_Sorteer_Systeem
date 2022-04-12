@@ -1,10 +1,33 @@
 from tkinter import *
 from tkinter.ttk import Style
 from time import sleep
+import serial
 
 windowMain = Tk()
 fontSize = 15
 fontText = ("Calibri", fontSize)
+waitlist = []
+
+try:
+    ser = serial.Serial('COM6', 9600)
+except:
+    ser = serial.Serial()
+    print("Geen seriële verbinding beschikbaar op COM6")
+
+def startMain():
+    print()
+
+def manualWaitlist():
+    print("waitlist")
+
+def dcToArduino(message):
+    ser.write(b"dc")
+
+def stepperToArduino(message):
+    ser.write(b"" + message)
+
+def encoder():
+    ser.read
 
 def openButtonWindow():
     # Toplevel object which will
@@ -20,7 +43,7 @@ def openButtonWindow():
     buttonPosition2 = Button(buttonWindow, text="2", width=20, height=3)
     buttonPosition3 = Button(buttonWindow, text="3", width=20, height=3)
 
-    buttonFinished = Button(buttonWindow, text="Klaar", width=10, height=3, command=buttonWindow.destroy)
+    buttonFinished = Button(buttonWindow, text="Klaar", width=10, height=3, command= manualWaitlist&buttonWindow.destroy)
 
     # A Label widget to show in toplevel
     Label(buttonWindow, text="Selecteer Sorteer Volgorde:").pack()
@@ -66,7 +89,7 @@ listBoxRegister.grid(row=1, column=2, columnspan=3, rowspan=3, sticky="nsew", pa
 labelSortingButtons = Label(text="Sorteer modus:")
 buttonAuto = Button(text="Automatisch")
 buttonManual = Button(text="Handmatig", command=openButtonWindow)
-buttonStart = Button(text="Start", bg='green',fg='white')
+buttonStart = Button(text="Start", bg='green',fg='white', command=startMain)
 buttonStop = Button(text="Stop", bg="#5A5A5A", fg='white')
 buttonEmergencyStop = Button(text="NOODSTOP", bg="red", fg='white')
 
