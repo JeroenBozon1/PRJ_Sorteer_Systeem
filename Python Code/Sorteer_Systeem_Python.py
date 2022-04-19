@@ -7,27 +7,57 @@ windowMain = Tk()
 fontSize = 15
 fontText = ("Calibri", fontSize)
 waitlist = []
+comPort = "COM7"
 
 try:
-    ser = serial.Serial('COM6', 9600)
+    serialArduino = serial.Serial(comPort, 115200)
 except:
-    ser = serial.Serial()
-    print("Geen seriële verbinding beschikbaar op COM6")
+    serialArduino = serial.Serial()
+    print("Geen seriële verbinding beschikbaar op " + comPort)
 
 def startMain():
-    print()
+    dcToArduino("dc1")
 
-def manualWaitlist():
-    print("waitlist")
+def updateListbox(number):
+    place = len(waitlist) - 1
+    print(place)
+    listBoxWaitlist.insert(place, waitlist[number])
+
+def manualWaitlist0():
+    waitlist.append(0)
+    print(waitlist)
+    updateListbox(0)
+
+def manualWaitlist1():
+    waitlist.append(1)
+    print(waitlist)
+    updateListbox(1)
+
+def manualWaitlist2():
+    waitlist.append(2)
+    print(waitlist)
+    updateListbox(2)
+
+def manualWaitlist3():
+    waitlist.append(3)
+    print(waitlist)
+    updateListbox(3)
+
+def waitlistChange():
+    for x in waitlist:
+        listBoxWaitlist.delete(x, END)
+    waitlist.clear()
+
+    openButtonWindow()
 
 def dcToArduino(message):
-    ser.write(b"dc")
+    serialArduino.write(message.encode())
 
 def stepperToArduino(message):
-    ser.write(b"" + message)
+    serialArduino.write(b"" + message)
 
 def encoder():
-    ser.read
+    serialArduino.read
 
 def openButtonWindow():
     # Toplevel object which will
@@ -38,12 +68,12 @@ def openButtonWindow():
     # Toplevel widget
     buttonWindow.title("Positie")
 
-    buttonPosition0 = Button(buttonWindow, text="0", width=20, height=3)
-    buttonPosition1 = Button(buttonWindow, text="1", width=20, height=3)
-    buttonPosition2 = Button(buttonWindow, text="2", width=20, height=3)
-    buttonPosition3 = Button(buttonWindow, text="3", width=20, height=3)
+    buttonPosition0 = Button(buttonWindow, text="0", width=20, height=3, command=manualWaitlist0)
+    buttonPosition1 = Button(buttonWindow, text="1", width=20, height=3, command=manualWaitlist1)
+    buttonPosition2 = Button(buttonWindow, text="2", width=20, height=3, command=manualWaitlist2)
+    buttonPosition3 = Button(buttonWindow, text="3", width=20, height=3, command=manualWaitlist3)
 
-    buttonFinished = Button(buttonWindow, text="Klaar", width=10, height=3, command= manualWaitlist&buttonWindow.destroy)
+    buttonFinished = Button(buttonWindow, text="Klaar", width=10, height=3, command=buttonWindow.destroy)
 
     # A Label widget to show in toplevel
     Label(buttonWindow, text="Selecteer Sorteer Volgorde:").pack()
@@ -108,7 +138,7 @@ buttonEmergencyStop.configure(font=fontText)
 
 ############################Wachtrij componenten############################
 labelWaitlist = Label(text="Wachtrij:")
-buttonWaitlist = Button(text="Wachtrij aanpassen")
+buttonWaitlist = Button(text="Wachtrij aanpassen", command=waitlistChange)
 listBoxWaitlist = Listbox()
 
 labelWaitlist.grid(column=2, columnspan=2, row=4, rowspan=1, padx=5, pady=5)
@@ -126,7 +156,12 @@ listBoxMessages.grid(column=0, row=5, columnspan=2, rowspan=1, sticky="nsew", pa
 
 # for i in range(100):
 #     listBoxRegister.insert(i, "Nummer" + str(i))
+def testprint():
+    if serialArduino.in_waiting > 0:
+        print(serialArduino.readline().decode())
+    windowMain.after(50, testprint)
 
 windowMain.protocol("WM_DELETE_WINDOW", quit)
+windowMain.after(50, testprint)
 windowMain.mainloop()
 
