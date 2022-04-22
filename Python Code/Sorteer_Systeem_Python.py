@@ -7,21 +7,36 @@ windowMain = Tk()
 fontSize = 15
 fontText = ("Calibri", fontSize)
 waitlist = []
-comPort = "COM7"
+comPort = "COM9"
 
 try:
-    serialArduino = serial.Serial(comPort, 115200)
+    serialArduino = serial.Serial(comPort, 250000)
 except:
     serialArduino = serial.Serial()
     print("Geen seriële verbinding beschikbaar op " + comPort)
 
+#dit is de main klasse die activeert als de start knop wordt ingedrukt
 def startMain():
-    dcToArduino("dc1")
+    messageToArduino("101")
 
 def updateListbox(number):
-    place = len(waitlist) - 1
-    print(place)
-    listBoxWaitlist.insert(place, waitlist[number])
+    if len(waitlist) >0:
+        place = len(waitlist) - 1
+        print(place)
+        listBoxWaitlist.insert(place, waitlist[number])
+    else:
+        place = 0
+        print(place)
+        listBoxWaitlist.insert(place, waitlist[number])
+
+def waitlistChange():
+    if len(waitlist) > 0:
+        for x in waitlist:
+            listBoxWaitlist.delete(x, END)
+        waitlist.clear()
+    else:
+        print("wachtlijst is leeg")
+    openButtonWindow()
 
 def manualWaitlist0():
     waitlist.append(0)
@@ -42,23 +57,14 @@ def manualWaitlist3():
     waitlist.append(3)
     print(waitlist)
     updateListbox(3)
-
-def waitlistChange():
-    for x in waitlist:
-        listBoxWaitlist.delete(x, END)
-    waitlist.clear()
-
-    openButtonWindow()
-
-def dcToArduino(message):
+#als je strings wilt sturen gebruik dit: serialArduino.write(message.encode())
+def messageToArduino(message):
     serialArduino.write(message.encode())
-
-def stepperToArduino(message):
-    serialArduino.write(b"" + message)
 
 def encoder():
     serialArduino.read
 
+#OpenButtonWindow is de functie om een popup te openen met 4 knoppen en 1 opslaan knop waarin een wachtrij aangemaakt kan worden
 def openButtonWindow():
     # Toplevel object which will
     # be treated as a new window
@@ -156,6 +162,8 @@ listBoxMessages.grid(column=0, row=5, columnspan=2, rowspan=1, sticky="nsew", pa
 
 # for i in range(100):
 #     listBoxRegister.insert(i, "Nummer" + str(i))
+# Als er string verstuurd worden moet je print(serialArduino.readline().decode())
+
 def testprint():
     if serialArduino.in_waiting > 0:
         print(serialArduino.readline().decode())
