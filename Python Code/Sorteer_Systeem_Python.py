@@ -6,18 +6,38 @@ import serial
 windowMain = Tk()
 fontSize = 15
 fontText = ("Calibri", fontSize)
+errorFont = ("Calibri", 25)
 waitlist = []
 comPort = "COM9"
+comPortSchool = "COM10"
 
 try:
     serialArduino = serial.Serial(comPort, 250000)
+
 except:
     serialArduino = serial.Serial()
     print("Geen seriële verbinding beschikbaar op " + comPort)
 
+try:
+    serialArduinoSchool = serial.Serial(comPortSchool, 250000)
+
+except:
+    serialArduino = serial.Serial()
+    print("Geen seriële verbinding beschikbaar op " + comPortSchool)
+
 #dit is de main klasse die activeert als de start knop wordt ingedrukt
 def startMain():
-    messageToArduino("101")
+    if len(waitlist) > 0:
+        #hier onder wordt het cijfer uit de wachtrij +1 gedaan omdat in de arduino als een string wordt verstuurd dit naar 0 wordt vertaald wat betekent dat als we hier 0 gebruiken er mogelijk problemen komen
+        messageToArduino(waitlist[0]+1)
+        waitlist.pop(0)
+    else:
+        errorWindow = Toplevel(windowMain)
+        errorWindow.title("ERROR message")
+        errorlabel = Label(errorWindow, text="Wachtrij is leeg!")
+        errorlabel.pack()
+        errorlabel.configure(font = errorFont)
+
 
 def updateListbox(number):
     if len(waitlist) >0:
@@ -39,7 +59,7 @@ def waitlistChange():
     openButtonWindow()
 
 def manualWaitlist0():
-    waitlist.append(0)
+    waitlist.append()
     print(waitlist)
     updateListbox(0)
 
@@ -69,7 +89,6 @@ def openButtonWindow():
     # Toplevel object which will
     # be treated as a new window
     buttonWindow = Toplevel(windowMain)
-    framePositionButton = Frame(buttonWindow)
     # sets the title of the
     # Toplevel widget
     buttonWindow.title("Positie")
