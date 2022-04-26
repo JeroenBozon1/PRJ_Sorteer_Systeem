@@ -47,7 +47,7 @@ void loop() {
     inductieSensor(hoek);
     DC_stop();;
     stepperRechts();
-    //stepperLinks();
+    stepperLinks();
     //potje neerzetten
     DC_links();
     inductieSensor(hoek);
@@ -60,7 +60,7 @@ void loop() {
     inductieSensor(hoek);
     DC_stop();
     stepperRechts();
-    //stepperLinks();
+    stepperLinks();
     //potje neerzetten
     DC_links();
     inductieSensor(hoek);
@@ -73,7 +73,7 @@ void loop() {
     inductieSensor(hoek);
     DC_stop();
     stepperRechts();
-    //stepperLinks();
+    stepperLinks();
     //potje neerzetten
     DC_links();
     inductieSensor(hoek);
@@ -85,12 +85,12 @@ void loop() {
 // DC motor links omdraaien
 void DC_links() {
   analogWrite(10, 0);
-  analogWrite(11, 255);
+  analogWrite(11, 150);
 }
 
 // DC motor rechts omdraaien
 void DC_rechts() {
-  analogWrite(10, 255);
+  analogWrite(10, 150);
   analogWrite(11, 0);
 }
 
