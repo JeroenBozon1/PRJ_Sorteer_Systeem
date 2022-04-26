@@ -28,69 +28,69 @@ void loop() {
   if (positie == 1) {
     hoek = 3;
     //potje oppakken
-    DC_links();
-    inductieSensor(hoek);
+    DC_links(255);
+    inductieSensor(hoek,"L");
     //Serial.println("eerste hoek voltooid");
     DC_stop();
     stepperRechts();
     stepperLinks();
     //potje neerzetten
-    DC_rechts();
-    inductieSensor(hoek);
+    DC_rechts(255);
+    inductieSensor(hoek,"R");
     //Serial.println("tweede hoek voltooid");
     DC_stop();
   }
   else if (positie == 2) {
     hoek = 3;
     //potje oppakken
-    DC_rechts();
-    inductieSensor(hoek);
+    DC_rechts(255);
+    inductieSensor(hoek,"R");
     DC_stop();;
     stepperRechts();
     //stepperLinks();
     //potje neerzetten
-    DC_links();
-    inductieSensor(hoek);
+    DC_links(255);
+    inductieSensor(hoek,"L");
     DC_stop();
   }
   else if (positie == 3) {
     hoek = 9;
     //potje oppakken
-    DC_rechts();
-    inductieSensor(hoek);
+    DC_rechts(255);
+    inductieSensor(hoek,"R");
     DC_stop();
     stepperRechts();
     //stepperLinks();
     //potje neerzetten
-    DC_links();
-    inductieSensor(hoek);
+    DC_links(255);
+    inductieSensor(hoek,"L");
     DC_stop();
   }
   else if (positie == 4) {
     hoek = 12;
     //potje oppakken
-    DC_rechts();
-    inductieSensor(hoek);
+    DC_rechts(255);
+    inductieSensor(hoek,"R");
     DC_stop();
     stepperRechts();
     //stepperLinks();
     //potje neerzetten
-    DC_links();
-    inductieSensor(hoek);
+    DC_links(255);
+    inductieSensor(hoek,"L");
     DC_stop();
   }
   positie = 0;
 }
 
 // DC motor links omdraaien
-void DC_links() {
+void DC_links(int speedDC) {
   analogWrite(10, 0);
-  analogWrite(11, 255);
+  analogWrite(11, speedDC);
 }
 
 // DC motor rechts omdraaien
-void DC_rechts() {
-  analogWrite(10, 255);
+void DC_rechts(int speedDC) {
+  analogWrite(10, speedDC);
   analogWrite(11, 0);
 }
 
@@ -101,9 +101,17 @@ void DC_stop() {
 }
 
 // Tellen met inductiesensor
-int inductieSensor(int Hoek) {
+int inductieSensor(int Hoek, String Richting) {
 
   for (int x = 0; x < Hoek; x++) { //0 metaal, 1 lucht)
+    if((Hoek-x)<=1){
+      if(Richting == "L"){
+        DC_links(100);
+      }else if(Richting == "R"){
+        DC_rechts(100);
+      }
+    }
+    
     while (digitalRead(inductie) == 0) {
     }
     //Serial.println(digitalRead(inductie));
