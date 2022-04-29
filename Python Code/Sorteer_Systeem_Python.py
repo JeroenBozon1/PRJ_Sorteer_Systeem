@@ -1,24 +1,102 @@
 from tkinter import *
 from tkinter.ttk import Style
 from time import sleep
+import serial
 
 windowMain = Tk()
 fontSize = 15
 fontText = ("Calibri", fontSize)
+errorFont = ("Calibri", 25)
+waitlist = []
+comPort = "COM9"
+comPortSchool = "COM10"
 
+try:
+    serialArduino = serial.Serial(comPort, 250000)
+
+except:
+    serialArduino = serial.Serial()
+    print("Geen seriële verbinding beschikbaar op " + comPort)
+
+try:
+    serialArduinoSchool = serial.Serial(comPortSchool, 250000)
+
+except:
+    serialArduino = serial.Serial()
+    print("Geen seriële verbinding beschikbaar op " + comPortSchool)
+
+#dit is de main klasse die activeert als de start knop wordt ingedrukt
+def startMain():
+    if len(waitlist) > 0:
+        #hier onder wordt het cijfer uit de wachtrij +1 gedaan omdat in de arduino als een string wordt verstuurd dit naar 0 wordt vertaald wat betekent dat als we hier 0 gebruiken er mogelijk problemen komen
+        messageToArduino(waitlist[0]+1)
+        waitlist.pop(0)
+    else:
+        errorWindow = Toplevel(windowMain)
+        errorWindow.title("ERROR message")
+        errorlabel = Label(errorWindow, text="Wachtrij is leeg!")
+        errorlabel.pack()
+        errorlabel.configure(font = errorFont)
+
+
+def updateListbox(number):
+    if len(waitlist) >0:
+        place = len(waitlist) - 1
+        print(place)
+        listBoxWaitlist.insert(place, waitlist[number])
+    else:
+        place = 0
+        print(place)
+        listBoxWaitlist.insert(place, waitlist[number])
+
+def waitlistChange():
+    if len(waitlist) > 0:
+        for x in waitlist:
+            listBoxWaitlist.delete(x, END)
+        waitlist.clear()
+    else:
+        print("wachtlijst is leeg")
+    openButtonWindow()
+
+def manualWaitlist0():
+    waitlist.append()
+    print(waitlist)
+    updateListbox(0)
+
+def manualWaitlist1():
+    waitlist.append(1)
+    print(waitlist)
+    updateListbox(1)
+
+def manualWaitlist2():
+    waitlist.append(2)
+    print(waitlist)
+    updateListbox(2)
+
+def manualWaitlist3():
+    waitlist.append(3)
+    print(waitlist)
+    updateListbox(3)
+#als je strings wilt sturen gebruik dit: serialArduino.write(message.encode())
+def messageToArduino(message):
+    serialArduino.write(message.encode())
+
+def encoder():
+    serialArduino.read
+
+#OpenButtonWindow is de functie om een popup te openen met 4 knoppen en 1 opslaan knop waarin een wachtrij aangemaakt kan worden
 def openButtonWindow():
     # Toplevel object which will
     # be treated as a new window
     buttonWindow = Toplevel(windowMain)
-    framePositionButton = Frame(buttonWindow)
     # sets the title of the
     # Toplevel widget
     buttonWindow.title("Positie")
 
-    buttonPosition0 = Button(buttonWindow, text="0", width=20, height=3)
-    buttonPosition1 = Button(buttonWindow, text="1", width=20, height=3)
-    buttonPosition2 = Button(buttonWindow, text="2", width=20, height=3)
-    buttonPosition3 = Button(buttonWindow, text="3", width=20, height=3)
+    buttonPosition0 = Button(buttonWindow, text="0", width=20, height=3, command=manualWaitlist0)
+    buttonPosition1 = Button(buttonWindow, text="1", width=20, height=3, command=manualWaitlist1)
+    buttonPosition2 = Button(buttonWindow, text="2", width=20, height=3, command=manualWaitlist2)
+    buttonPosition3 = Button(buttonWindow, text="3", width=20, height=3, command=manualWaitlist3)
 
     buttonFinished = Button(buttonWindow, text="Klaar", width=10, height=3, command=buttonWindow.destroy)
 
@@ -66,7 +144,7 @@ listBoxRegister.grid(row=1, column=2, columnspan=3, rowspan=3, sticky="nsew", pa
 labelSortingButtons = Label(text="Sorteer modus:")
 buttonAuto = Button(text="Automatisch")
 buttonManual = Button(text="Handmatig", command=openButtonWindow)
-buttonStart = Button(text="Start", bg='green',fg='white')
+buttonStart = Button(text="Start", bg='green',fg='white', command=startMain)
 buttonStop = Button(text="Stop", bg="#5A5A5A", fg='white')
 buttonEmergencyStop = Button(text="NOODSTOP", bg="red", fg='white')
 
@@ -85,7 +163,7 @@ buttonEmergencyStop.configure(font=fontText)
 
 ############################Wachtrij componenten############################
 labelWaitlist = Label(text="Wachtrij:")
-buttonWaitlist = Button(text="Wachtrij aanpassen")
+buttonWaitlist = Button(text="Wachtrij aanpassen", command=waitlistChange)
 listBoxWaitlist = Listbox()
 
 labelWaitlist.grid(column=2, columnspan=2, row=4, rowspan=1, padx=5, pady=5)
@@ -103,7 +181,14 @@ listBoxMessages.grid(column=0, row=5, columnspan=2, rowspan=1, sticky="nsew", pa
 
 # for i in range(100):
 #     listBoxRegister.insert(i, "Nummer" + str(i))
+# Als er string verstuurd worden moet je print(serialArduino.readline().decode())
+
+def testprint():
+    if serialArduino.in_waiting > 0:
+        print(serialArduino.readline().decode())
+    windowMain.after(50, testprint)
 
 windowMain.protocol("WM_DELETE_WINDOW", quit)
+windowMain.after(50, testprint)
 windowMain.mainloop()
 

@@ -9,14 +9,36 @@ int stepperOn;
 
 int stepperButton;
 
-int directionDCInput;
+String directionDCInput;
 int stepperStepsInput;
 int stepperDirectionInput;
-int speedDCInput;
+int positionPot;
+
+int dcSpeed = 100;
+
+String sensorRotation1 = "A0";
+String sensorRotation2 = "A1";
+
+String sensorCylinder1 = "A2";
+String sensorCylinder2 = "A3";
+
+String sensorStepper1 = "A4";
+String sensorStepper2 = "A5";
+
+int encoderPin = 7;
+
+int lastPosition;
+
+int position0 = 8;
+int position1 = 16;
+int position2 = 24;
+int position3 = 48;
+int position4 = 16;
+int position5 = 0;
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(9600);
+  Serial.begin(250000);
 
   pinMode(directionPin,OUTPUT); 
   pinMode(stepsPin,OUTPUT);
@@ -25,34 +47,39 @@ void setup() {
   pinMode(dcInputTwoPin, OUTPUT);
 
   pinMode(stepperButton, INPUT);
+
+  dcMotor("LEFT");
+  while(sensorRotation1==0){}
+  dcMotor("OFF");
   
+  lastPosition = 5;
 }
 
 void loop() {
-  // hier moet op de 1 of andere manier steeds naar de output van python gevraagd worden dus dat moeten we effe bekijken
-//  read(ietsVanPython) = dcDirectionInput;
-//  read(ietsVanPython) = dcSpeedInput;
-//  read(ietsVanPython) = encoder;
-
-//  read(ietsVanPython) = stepperStepsInput;
-//  read(ietsVanPython) = stepperDirectionInput;
-//  read(ietsVanPython) = stepperOn;
-//dit hierboven is meer ruige schets van wat er moet gebeuren idk hoe dat moet iig steeds alles ophalen uit python
-  
-  if(encoder==1){
-    dcMotor(dcDirectionInput, dcSpeedInput);
-    delay(1000);
-    //Dit is om te zorgen dat de plaat gegarandeerd van de knop af is zodat hij niet gelijk stopt doordat de knop nog is ingedrukt
-    while(digitalRead encoder = 1){
-      delay(1);
-      //Encoder moet een 0 doorgeven zodra het systeem moet stoppen.
+//hier wordt uitgelezen of er een signaal wordt verstuurd vanuit python
+  if (Serial.available() > 0) {
+    //positionPot is de integer die door python wordt doorgestuurd
+    positionPot = Serial.readString();
+    Serial.println(positionPot);
+    
+    if(positionPot>lastPosition){
+      
     }
-    dcMotor(0, 0);
+      encoderArduino(
   }
 
   if(stepperOn==1){
     stepper(stepperDirectionInput, stepperStepsInput);
   }
+}
+
+void encoderArduino(int toPosition, String toDirection){
+
+ int positionCounter = 0;
+ 
+// while(){
+//  
+// }
 }
 
 void stepper(int direction, int steps){
@@ -67,14 +94,19 @@ void stepper(int direction, int steps){
   }
 }
 
-void dcMotor(String directionDC, int speedDC){
+void dcMotor(String directionDC){
   if(directionDC == "LEFT"){
-    analogWrite(dcInputOnePin, speedDC);
+    analogWrite(dcInputOnePin, dcSpeed);
     analogWrite(dcInputTwoPin, 0);
   }
 
   if(directionDC == "RIGHT"){
     analogWrite(dcInputOnePin, 0);
-    analogWrite(dcInputTwoPin, speedDC);
+    analogWrite(dcInputTwoPin, dcSpeed);
+  }
+
+  if(directionDC == "OFF"){
+    analogWrite(dcInputOnePin, 0);
+    analogWrite(dcInputTwoPin, 0);
   }
 }
