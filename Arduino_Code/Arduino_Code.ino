@@ -1,6 +1,7 @@
 int hoek = 0;
 int positie = 5;
 int inductie = 7;
+int cilinder = 8;
 
 void setup() {
   Serial.begin(9600);
@@ -22,7 +23,7 @@ void loop() {
 
   // Aan de hand van seriele communcatie positie kiezen
   while (Serial.available() == 0) {}
-  positie = Serial.parseInt();
+  positie = Serial.readString().toInt();
   //Serial.println(positie);
 
   if (positie == 1) {
