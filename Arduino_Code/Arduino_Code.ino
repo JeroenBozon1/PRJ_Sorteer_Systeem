@@ -6,6 +6,8 @@
 int unit = -1;
 int choice = -1;
 
+int oldUnit;
+
 int hoek = 0;
 int positieInt;
 String positieString;
@@ -62,14 +64,19 @@ void loop() {
     if (Wire.available()) {
     unit = Wire.read();
     choice = Wire.read();
-    positieString = String(choice);
-    positieInt = positieString.toInt();
-    
+
+      if unit != oldUnit{
+        positieString = String(choice);
+        positieInt = positieString.toInt();
+        oldUnit = unit;
+      }
     }
   }
 
   if (positieInt == 1) {
     hoek = 3;
+    cylinderIn()
+    stepperLinks()
     //potje oppakken
     DC_links(255);
     inductieSensor(hoek,"L");
