@@ -9,7 +9,7 @@ int choice = -1;
 int oldUnit;
 
 int hoek = 0;
-int positieInt;
+int positieInt = 2;
 String positieString;
 String command;
 int inductie = 7;
@@ -21,10 +21,10 @@ int grijperHoog = A4;
 int grijperLaag = A5;
 int cilinder = 8;
 
+int speedDC = 150;
+
 boolean automaticMode = false;
 boolean stopped = false;
-
-#include <Wire.h>
 
 void setup() {
   Wire.begin();
@@ -46,8 +46,8 @@ void setup() {
 void loop() {
 
 
-  while (Serial.available() == 0) {}
-  command = Serial.readString();
+//  while (Serial.available() == 0) {}
+//  command = Serial.readString();
 
 // Aan de hand van seriele communcatie lezen wat de arduino moet doen
   if (command == "AUTO"){
@@ -64,10 +64,10 @@ void loop() {
   }else{
     automaticMode = false;
     stopped = false;
-    positieInt = command.toInt();
+    //positieInt = command.toInt();
   }
 
-  if (automaticMode && stopped == false){
+  if (automaticMode==true && stopped == false){
     Wire.requestFrom(WIRE_ID, BYTE_COUNT);
 
     if (Wire.available()) {
@@ -128,17 +128,16 @@ void loop() {
   }
   positieInt = 0;
 }
-}
 
 
 // DC motor links omdraaien
-void DC_links(int speedDC) {
+void DC_links() {
   analogWrite(10, 0);
   analogWrite(11, speedDC);
 }
 
 // DC motor rechts omdraaien
-void DC_rechts(int speedDC) {
+void DC_rechts() {
   analogWrite(10, speedDC);
   analogWrite(11, 0);
 }
