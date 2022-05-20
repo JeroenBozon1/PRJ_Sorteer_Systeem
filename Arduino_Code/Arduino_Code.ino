@@ -1,8 +1,18 @@
 int hoek = 0;
 int positie = 5;
 int inductie = 7;
+int calibiratieL = A0;
+int calibritaieR = A1;
+int cilinderIn = A2;
+int cilinderUit = A3;
+int grijperHoog = A4;
+int grijperLaag = A5;
+int cilinder = 8;
+
+#include <Wire.h>
 
 void setup() {
+  Wire.begin();
   Serial.begin(9600);
   pinMode(10, OUTPUT);
   pinMode(11, OUTPUT);
@@ -10,6 +20,7 @@ void setup() {
   pinMode(2, OUTPUT);
   pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
+  pinMode(cilinder, OUTPUT); 
 
   digitalWrite(3, LOW);
   digitalWrite(2, LOW);
@@ -21,65 +32,63 @@ void loop() {
 
 
   // Aan de hand van seriele communcatie positie kiezen
-  while (Serial.available() == 0) {}
-  positie = Serial.parseInt();
+//  while (Serial.available() == 0) {}
+//  positie = Serial.parseInt();
   //Serial.println(positie);
+
+//Aan de hand van i2c positie kiezen
+Wire.requestFrom(2, 1);    // request 1 bytes from peripheral device #2
+
+while (Wire.available()) { // peripheral may send less than requested
+  char c = Wire.read(); // receive a byte as character
+
 
   if (positie == 1) {
     hoek = 3;
-    //potje oppakken
+    potjeOpakken();
     DC_links();
     inductieSensor(hoek);
-    //Serial.println("eerste hoek voltooid");
     DC_stop();
-    stepperRechts();
-    stepperLinks();
-    //potje neerzetten
+    potjeNeerzetten();
     DC_rechts();
     inductieSensor(hoek);
-    //Serial.println("tweede hoek voltooid");
     DC_stop();
   }
   else if (positie == 2) {
     hoek = 3;
-    //potje oppakken
+    potjeOpakken();
     DC_rechts();
     inductieSensor(hoek);
-    DC_stop();;
-    stepperRechts();
-    stepperLinks();
-    //potje neerzetten
+    DC_stop();
+    potjeNeerzetten();
     DC_links();
     inductieSensor(hoek);
     DC_stop();
   }
   else if (positie == 3) {
     hoek = 9;
-    //potje oppakken
+    potjeOpakken();
     DC_rechts();
     inductieSensor(hoek);
     DC_stop();
-    stepperRechts();
-    stepperLinks();
-    //potje neerzetten
+    potjeNeerzetten();
     DC_links();
     inductieSensor(hoek);
     DC_stop();
   }
   else if (positie == 4) {
     hoek = 12;
-    //potje oppakken
+    potjeOpakken();
     DC_rechts();
     inductieSensor(hoek);
     DC_stop();
-    stepperRechts();
-    stepperLinks();
-    //potje neerzetten
+    potjeNeerzetten();
     DC_links();
     inductieSensor(hoek);
     DC_stop();
   }
   positie = 0;
+}
 }
 
 // DC motor links omdraaien
@@ -115,12 +124,11 @@ int inductieSensor(int Hoek) {
 }
 
 //stepper rechtsom
-void stepperRechts() {
+void stepperOmhoog() {
   digitalWrite(2, LOW);
   digitalWrite(4, LOW);
 
-  //while(analogRead("A1") > 200){
-  for (int i = 0; i < 2000; i++) {
+  while(analogRead(grijperHoog) > 0){
     digitalWrite(3, HIGH);
     delay(1);
     digitalWrite(3, LOW);
@@ -131,12 +139,11 @@ void stepperRechts() {
 }
 
 //stepper linksom
-void stepperLinks() {
+void stepperOmlaag() {
   digitalWrite(2, HIGH);
   digitalWrite(4, LOW);
 
-  //while(analogRead("A1") > 200){
-  for (int i = 0; i < 2000; i++) {
+  while(analogRead(grijperLaag) > 0){
     digitalWrite(3, HIGH);
     delay(1);
     digitalWrite(3, LOW);
@@ -144,4 +151,27 @@ void stepperLinks() {
   }
   digitalWrite(4, HIGH);
 
+}
+
+//potje opakken
+void potjeOpakken(){
+    stepperOmlaag(); //dit kan de verkeerde kant op zijn
+    while(analogRead(cilinderIn) > 0){
+      digitalWrite(cilinder, HIGH);
+    }
+    stepperOmhoog(); //dit kan de verkeerde kant op zijn
+    while(analogRead(cilinderUit) > 0){
+      digitalWrite(cilinder, LOW);
+    }
+}
+
+//potje neerzetten
+void potjeNeerzetten(){
+  while(analogRead(cilinderIn) > 0){
+      digitalWrite(cilinder, HIGH);
+    }
+  stepperOmlaag();
+  while(analogRead(cilinderUit) > 0){
+      digitalWrite(cilinder, LOW);
+    }
 }
