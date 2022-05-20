@@ -74,7 +74,7 @@ void loop() {
     unit = Wire.read();
     choice = Wire.read();
 
-      if unit != oldUnit{
+      if (unit != oldUnit){
         positieString = String(choice);
         positieInt = positieString.toInt();
         oldUnit = unit;
@@ -159,24 +159,13 @@ void cylinderIn(){
 
 
 // Tellen met inductiesensor
-int inductieSensor(int Hoek, String Richting) {
-
+int inductieSensor(int Hoek) {
   for (int x = 0; x < Hoek; x++) { //0 metaal, 1 lucht)
-    if((Hoek-x)<=1){
-      if(Richting == "L"){
-        DC_links(100);
-      }else if(Richting == "R"){
-        DC_rechts(100);
-      }
-    }
-    
-    while (digitalRead(inductie) == 0) {
-    }
-    //Serial.println(digitalRead(inductie));
+    while (digitalRead(inductie) == 0) {}
+//Serial.println(digitalRead(inductie));
 
-    while (digitalRead(inductie) == 1) {
-    }
-    //Serial.println(digitalRead(inductie));
+    while (digitalRead(inductie) == 1) {}
+//Serial.println(digitalRead(inductie));
   }
 }
 
