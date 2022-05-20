@@ -1,10 +1,24 @@
+#include <Wire.h>
+
+#define WIRE_ID 8
+#define BYTE_COUNT 2
+
+int unit = -1;
+int choice = -1;
+
 int hoek = 0;
-int positie = 5;
+int positieInt;
+String positieString;
+String command;
 int inductie = 7;
 int cilinder = 8;
 
+boolean automaticMode = false;
+boolean stopped = false;
+
 void setup() {
-  Serial.begin(9600);
+  Wire.begin();
+  Serial.begin(250000);
   pinMode(10, OUTPUT);
   pinMode(11, OUTPUT);
   pinMode(inductie, INPUT);
@@ -21,12 +35,40 @@ void setup() {
 void loop() {
 
 
-  // Aan de hand van seriele communcatie positie kiezen
   while (Serial.available() == 0) {}
-  positie = Serial.readString().toInt();
-  //Serial.println(positie);
+  command = Serial.readString();
 
-  if (positie == 1) {
+// Aan de hand van seriele communcatie lezen wat de arduino moet doen
+  if (command == "AUTO"){
+    automaticMode = true;
+    stopped = false;
+  }else if (command == "STOP"){
+    //Hier alle code om hem te stoppen
+    stopped = true;
+    
+  }else if (command == "CALIBRATE"){
+    //Hier alle code voor het kalibreren
+
+    stopped = true;
+  }else{
+    automaticMode = false;
+    stopped = false;
+    positieInt = command.toInt();
+  }
+
+  if (automaticMode && stopped == false){
+    Wire.requestFrom(WIRE_ID, BYTE_COUNT);
+
+    if (Wire.available()) {
+    unit = Wire.read();
+    choice = Wire.read();
+    positieString = String(choice);
+    positieInt = positieString.toInt();
+    
+    }
+  }
+
+  if (positieInt == 1) {
     hoek = 3;
     //potje oppakken
     DC_links(255);
@@ -41,7 +83,7 @@ void loop() {
     //Serial.println("tweede hoek voltooid");
     DC_stop();
   }
-  else if (positie == 2) {
+  else if (positieInt == 2) {
     hoek = 3;
     //potje oppakken
     DC_rechts(255);
@@ -54,7 +96,7 @@ void loop() {
     inductieSensor(hoek,"L");
     DC_stop();
   }
-  else if (positie == 3) {
+  else if (positieInt == 3) {
     hoek = 9;
     //potje oppakken
     DC_rechts(255);
@@ -67,7 +109,7 @@ void loop() {
     inductieSensor(hoek,"L");
     DC_stop();
   }
-  else if (positie == 4) {
+  else if (positieInt == 4) {
     hoek = 12;
     //potje oppakken
     DC_rechts(255);
@@ -80,8 +122,9 @@ void loop() {
     inductieSensor(hoek,"L");
     DC_stop();
   }
-  positie = 0;
+  positieInt = 0;
 }
+
 
 // DC motor links omdraaien
 void DC_links(int speedDC) {
@@ -100,6 +143,15 @@ void DC_stop() {
   analogWrite(10, 0);
   analogWrite(11, 0);
 }
+
+void cylinderOut(){
+  digitalWrite(cilinder, HIGH);
+}
+
+void cylinderIn(){
+  digitalWrite(cilinder, LOW);
+}
+
 
 // Tellen met inductiesensor
 int inductieSensor(int Hoek, String Richting) {

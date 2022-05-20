@@ -4,12 +4,27 @@ from time import sleep
 import serial
 
 windowMain = Tk()
+
+#Alle font functies
 fontSize = 15
 fontText = ("Calibri", fontSize)
 errorFont = ("Calibri", 25)
+
+#De wachtrij array
 waitlist = []
-comPort = "COM3"
-comPortSchool = "COM10"
+
+#Alle variabelen die te maken hebben met welke modus de sorteermachine moet opereren
+modeMessage = "MANUAL"
+previousModeMessage = "MANUAL"
+#Als stopped false is dan is de stop of kalibreer knop niet ingedrukt dus hoeft er niet naar de previousmessage gekeken worden
+stopped = False
+
+#De tekst die in een errormessage komt te staan
+errormessage = ""
+
+#De comport waarop de arduino is aangesloten
+comPort = "COM9"
+
 
 try:
     serialArduino = serial.Serial(comPort, 250000)
@@ -18,79 +33,117 @@ except:
     serialArduino = serial.Serial()
     print("Geen seriële verbinding beschikbaar op " + comPort)
 
-# try:
-#     serialArduinoSchool = serial.Serial(comPortSchool, 250000)
-#
-# except:
-#     serialArduino = serial.Serial()
-#     print("Geen seriële verbinding beschikbaar op " + comPortSchool)
-
 #dit is de main klasse die activeert als de start knop wordt ingedrukt
 def startMain():
-    if len(waitlist) > 0:
-        #hier onder wordt het cijfer uit de wachtrij +1 gedaan omdat in de arduino als een string wordt verstuurd dit naar 0 wordt vertaald wat betekent dat als we hier 0 gebruiken er mogelijk problemen komen
-        messageToArduino((waitlist[0]+1))
-        waitlist.pop(0)
+    global modeMessage
+    global stopped
+    #Als modemessage auto is dan moet de machine op automatische stand werken
+    if modeMessage == "AUTO":
+        print("Automatische wachtrij geselecteerd")
+        messageToArduino("AUTO")
+    # Als modemessage stop is dan moet de machine stoppen
+    elif modeMessage == "STOP":
+        #Hier wordt gecheckt of stop nog maar net is ingedrukt of dat dit al 1 keer is uitgevoerd
+        messageToArduino("STOP")
+        modeMessage = previousModeMessage
+    # Als modemessage manual is dan moet de machine op handmatige stand werken
+    elif modeMessage == "MANUAL":
+        if len(waitlist) > 0:
+            #hier onder wordt het cijfer uit de wachtrij +1 gedaan omdat in de arduino als een string wordt verstuurd dit naar 0 wordt vertaald wat betekent dat als we hier 0 gebruiken er mogelijk problemen komen
+            print("Wachtlijst cijfer is: "+str(waitlist[0]))
+            stringMessage = str(waitlist[0]+1)
+            print("Verhoogd cijfer is: " + stringMessage)
+            messageToArduino(stringMessage)
+            waitlist.pop(0)
+        else:
+            errorWindow = Toplevel(windowMain)
+            errorWindow.title("ERROR message")
+            errorlabel = Label(errorWindow, text="Wachtrij is leeg!")
+            errorlabel.pack()
+            errorlabel.configure(font = errorFont)
+    # Als modemessage calibrate is dan moet de machine kalibreren
+    elif modeMessage == "CALIBRATE":
+        messageToArduino("CALIBRATE")
+        modeMessage = previousModeMessage
     else:
-        errorWindow = Toplevel(windowMain)
-        errorWindow.title("ERROR message")
-        errorlabel = Label(errorWindow, text="Wachtrij is leeg!")
-        errorlabel.pack()
-        errorlabel.configure(font = errorFont)
+        print("Error modeMessage heeft geen legitime waarde")
 
+#als je strings wilt sturen gebruik dit: serialArduino.write(message.encode())
+def messageToArduino(message):
+    print("MessageToArduino string is: " +message)
+    listBoxWaitlist.delete(0)
+    serialArduino.write(message.encode())
 
-def updateListbox(number):
-    if len(waitlist) >0:
+def updateListbox():
+    if len(waitlist) > 0:
         place = len(waitlist) - 1
         print(place)
-        listBoxWaitlist.insert(place, waitlist[number])
+        listBoxWaitlist.insert(place, waitlist[place])
     else:
         place = 0
         print(place)
-        listBoxWaitlist.insert(place, waitlist[number])
+        listBoxWaitlist.insert(place, waitlist[place])
 
 def waitlistChange():
     if len(waitlist) > 0:
+        y = 0
         for x in waitlist:
-            listBoxWaitlist.delete(x, END)
+            listBoxWaitlist.delete(y, END)
+            print("Wachtrij listbox heeft positie: " + str(y) + " verwijderd")
+            y+=1
         waitlist.clear()
     else:
         print("wachtlijst is leeg")
-    openButtonWindow()
+        waitlist.clear()
+    openManualButtonWindow()
 
+def automaticWaitlistEnable():
+    global modeMessage
+    global previousModeMessage
+    modeMessage = "AUTO"
+    previousModeMessage = "AUTO"
+    print("wachtrij modus naar automatisch aangepast")
+
+#Alle manualWaitlist functies zijn gekoppeld aan de knoppen die openen bij de handmatige invoer van een wachtrij,
+#ze voegen aan de array waitlist een cijfer toe die bij de knop hoort en voert updateListbox() uit
 def manualWaitlist0():
     waitlist.append(0)
     print(waitlist)
-    updateListbox(0)
+    updateListbox()
 
 def manualWaitlist1():
     waitlist.append(1)
     print(waitlist)
-    updateListbox(1)
+    updateListbox()
 
 def manualWaitlist2():
     waitlist.append(2)
     print(waitlist)
-    updateListbox(2)
+    updateListbox()
 
 def manualWaitlist3():
     waitlist.append(3)
     print(waitlist)
-    updateListbox(3)
-#als je strings wilt sturen gebruik dit: serialArduino.write(message.encode())
-def messageToArduino(message):
-    serialArduino.write(message.encode())
+    updateListbox()
 
-def encoder():
-    serialArduino.read
+def stopSystemButton():
+    global modeMessage
+    modeMessage = "STOP"
 
-#OpenButtonWindow is de functie om een popup te openen met 4 knoppen en 1 opslaan knop waarin een wachtrij aangemaakt kan worden
-def openButtonWindow():
-    # Toplevel object which will
-    # be treated as a new window
+def calibrateButton():
+    global modeMessage
+    modeMessage = "CALIBRATE"
+
+#OpenButtonWindow is de functie om een popup te openen voor handmatige invoer van de wachtrij
+def openManualButtonWindow():
+    global previousModeMessage
+    global modeMessage
+    modeMessage = "MANUAL"
+    previousModeMessage = "MANUAL"
+    print("wachtrij modus naar handmatig aangepast")
+
     buttonWindow = Toplevel(windowMain)
-    # sets the title of the
-    # Toplevel widget
+
     buttonWindow.title("Positie")
 
     buttonPosition0 = Button(buttonWindow, text="0", width=20, height=3, command=manualWaitlist0)
@@ -142,24 +195,24 @@ listBoxRegister.grid(row=1, column=2, columnspan=3, rowspan=3, sticky="nsew", pa
 
 ############################Sorteerknoppen componenten############################
 labelSortingButtons = Label(text="Sorteer modus:")
-buttonAuto = Button(text="Automatisch")
-buttonManual = Button(text="Handmatig", command=openButtonWindow)
+buttonAuto = Button(text="Automatisch", command=automaticWaitlistEnable)
+buttonManual = Button(text="Handmatig", command=openManualButtonWindow)
 buttonStart = Button(text="Start", bg='green',fg='white', command=startMain)
-buttonStop = Button(text="Stop", bg="#5A5A5A", fg='white')
-buttonEmergencyStop = Button(text="NOODSTOP", bg="red", fg='white')
+buttonStop = Button(text="Stop", bg="red", fg='white', command=stopSystemButton)
+buttonCalibrate = Button(text="Kalibreer apparaat", bg="blue", fg='white', command=calibrateButton)
 
 labelSortingButtons.grid(row=0, column=0, columnspan=2, padx=5, pady=5)
 buttonAuto.grid(row=2, column=0, columnspan=1, sticky="nsew", padx=5, pady=5)
 buttonManual.grid(row=2, column=1, columnspan=1, sticky="nsew", padx=5, pady=5)
 buttonStart.grid(row=1, column=0, columnspan=1, sticky="nsew", padx=5, pady=5)
 buttonStop.grid(row=1, column=1, columnspan=1, sticky="nsew", padx=5, pady=5)
-buttonEmergencyStop.grid(row=3, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
+buttonCalibrate.grid(row=3, column=0, columnspan=2, sticky="nsew", padx=5, pady=5)
 
 buttonAuto.configure(font=fontText)
 buttonStop.configure(font=fontText)
 buttonStart.configure(font=fontText)
 buttonManual.configure(font=fontText)
-buttonEmergencyStop.configure(font=fontText)
+buttonCalibrate.configure(font=fontText)
 
 ############################Wachtrij componenten############################
 labelWaitlist = Label(text="Wachtrij:")
@@ -185,8 +238,17 @@ listBoxMessages.grid(column=0, row=5, columnspan=2, rowspan=1, sticky="nsew", pa
 
 def testprint():
     if serialArduino.in_waiting > 0:
-        print(serialArduino.readline().decode())
-    windowMain.after(50, testprint)
+        waitlistAutomatic = serialArduino.readline().decode()
+        print(waitlistAutomatic)
+        # Testcode voor het krijgen van een bericht via I2C
+        # if waitlistAutomatic == "0" or waitlistAutomatic == "1" or waitlistAutomatic == "2" or waitlistAutomatic == "3":
+        #     print("Cijfer is een wachtrij cijfer")
+        #     waitlist.append(waitlistAutomatic)
+        #     messageToArduino(waitlistAutomatic)
+        # else:
+        #     errormessage = waitlistAutomatic
+
+    windowMain.after(1, testprint)
 
 windowMain.protocol("WM_DELETE_WINDOW", quit)
 windowMain.after(50, testprint)
