@@ -12,7 +12,6 @@ errorFont = ("Calibri", 25)
 
 #De wachtrij array
 waitlist = []
-<<<<<<< HEAD
 
 #Alle variabelen die te maken hebben met welke modus de sorteermachine moet opereren
 modeMessage = "MANUAL"
@@ -26,10 +25,6 @@ errormessage = ""
 #De comport waarop de arduino is aangesloten
 comPort = "COM9"
 
-=======
-comPort = "COM4"
-comPortSchool = "COM10"
->>>>>>> Wiljan
 
 try:
     serialArduino = serial.Serial(comPort, 250000)
@@ -38,7 +33,6 @@ except:
     serialArduino = serial.Serial()
     print("Geen seriële verbinding beschikbaar op " + comPort)
 
-<<<<<<< HEAD
 #dit is de main klasse die activeert als de start knop wordt ingedrukt
 def startMain():
     global modeMessage
@@ -71,21 +65,6 @@ def startMain():
     elif modeMessage == "CALIBRATE":
         messageToArduino("CALIBRATE")
         modeMessage = previousModeMessage
-=======
-# try:
-#     serialArduinoSchool = serial.Serial(comPortSchool, 250000)
-#
-# except:
-#     serialArduino = serial.Serial()
-#     print("Geen seriële verbinding beschikbaar op " + comPortSchool)
-
-#dit is de main klasse die activeert als de start knop wordt ingedrukt
-def startMain():
-    if len(waitlist) > 0:
-        #hier onder wordt het cijfer uit de wachtrij +1 gedaan omdat in de arduino als een string wordt verstuurd dit naar 0 wordt vertaald wat betekent dat als we hier 0 gebruiken er mogelijk problemen komen
-        messageToArduino(str(waitlist[0]+1))
-        waitlist.pop(0)
->>>>>>> Wiljan
     else:
         print("Error modeMessage heeft geen legitime waarde")
 
