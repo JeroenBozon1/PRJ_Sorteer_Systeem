@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter.ttk import Style
 from time import sleep
 import serial
+import csv
 
 windowMain = Tk()
 
@@ -21,6 +22,7 @@ stopped = False
 
 #De tekst die in een errormessage komt te staan
 errormessage = ""
+arduinoMessage = ""
 
 #De comport waarop de arduino is aangesloten
 comPort = "COM9"
@@ -236,21 +238,30 @@ listBoxMessages.grid(column=0, row=5, columnspan=2, rowspan=1, sticky="nsew", pa
 #     listBoxRegister.insert(i, "Nummer" + str(i))
 # Als er string verstuurd worden moet je print(serialArduino.readline().decode())
 
-def testprint():
+def getArduinoMessage():
+    global arduinoMessage
+    global errormessage
     if serialArduino.in_waiting > 0:
-        waitlistAutomatic = serialArduino.readline().decode()
-        print(waitlistAutomatic)
+        arduinoMessage = serialArduino.readline().decode()
+        print(arduinoMessage)
         # Testcode voor het krijgen van een bericht via I2C
-        # if waitlistAutomatic == "0" or waitlistAutomatic == "1" or waitlistAutomatic == "2" or waitlistAutomatic == "3":
-        #     print("Cijfer is een wachtrij cijfer")
-        #     waitlist.append(waitlistAutomatic)
-        #     messageToArduino(waitlistAutomatic)
-        # else:
-        #     errormessage = waitlistAutomatic
+        if arduinoMessage == "0" or arduinoMessage == "1" or arduinoMessage == "2" or arduinoMessage == "3":
+            print("Verplaatsing voltooid, pot verplaatst naar plek: " + arduinoMessage)
+            errormessage = "Geen fouten tijdens uitvoering"
 
-    windowMain.after(1, testprint)
+            information = [arduinoMessage, errormessage]
+
+            #Het programma om in een csv logboek de dingen op te slaan
+            with open('logboek.csv', 'w', encoding='UTF8', newline='') as logboek:
+                # create the csv writer
+                writer = csv.writer(logboek)
+
+                # write a row to the csv file
+                writer.writerow(information)
+
+    windowMain.after(1, getArduinoMessage)
 
 windowMain.protocol("WM_DELETE_WINDOW", quit)
-windowMain.after(50, testprint)
+windowMain.after(1, getArduinoMessage)
 windowMain.mainloop()
 

@@ -2,7 +2,7 @@ int grijperHoog = A4;
 int grijperLaag = A5;
 
 void setup() {
-  Serial.begin(250000);
+  Serial.begin(9600);
   pinMode(2, OUTPUT);
   pinMode(3, OUTPUT);
   //pinMode(4, OUTPUT); 
@@ -11,8 +11,10 @@ void setup() {
 }
 
 void loop() {
-  stepperOmlaag();
-  stepperOmhoog();
+  delay(100);
+  Serial.println("Grijper hoog signaal is: " + String(analogRead(grijperHoog)));
+  delay(100);
+  Serial.println("Grijper laag signaal is: " + String(analogRead(grijperLaag)));
  
 }
 
