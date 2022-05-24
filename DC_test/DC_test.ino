@@ -3,7 +3,14 @@ void setup() {
 pinMode(10,OUTPUT);
 pinMode(11,OUTPUT);
 
-
+DC_links();
+  delay(500);
+  DC_stop();
+  delay(500);
+  DC_rechts();
+  delay(500);
+  DC_stop();
+  delay(500);
 
 
 }
@@ -12,14 +19,7 @@ void loop() {
   // put your main code here, to run repeatedly:
   //richting veranderen door de nul en de waarde om te draaien
 
-  //DC_links();
-  delay(5000);
-  DC_stop();
-  delay(1000);
-  //DC_rechts();
-  delay(5000);
-  DC_stop();
-  delay(1000);
+  
 
   //if (Serial.read()="positie1"){
 //  DC_links();
