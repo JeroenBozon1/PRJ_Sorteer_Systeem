@@ -65,7 +65,7 @@ void loop() {
     unit = Wire.read();
     choice = Wire.read();
 
-      if unit != oldUnit{
+      if (unit != oldUnit){
         positieString = String(choice);
         positieInt = positieString.toInt();
         oldUnit = unit;
