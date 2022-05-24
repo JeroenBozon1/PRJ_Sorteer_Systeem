@@ -46,8 +46,9 @@ void setup() {
 void loop() {
 
 
-//  while (Serial.available() == 0) {}
-//  command = Serial.readString();
+  while (Serial.available() == 0) {}
+  command = Serial.readString();
+  Serial.println("commando is: " + command);
 
 // Aan de hand van seriele communcatie lezen wat de arduino moet doen
   if (command == "AUTO"){
@@ -84,6 +85,7 @@ void loop() {
 
   if (positieInt == 1) {
     hoek = 3;
+    Serial.println("Beginnen met potje oppakken");
     potjeOpakken();
     DC_links();
     inductieSensor(hoek);
@@ -95,6 +97,7 @@ void loop() {
   }
   else if (positieInt == 2) {
     hoek = 3;
+    Serial.println("Beginnen met potje oppakken");
     potjeOpakken();
     DC_rechts();
     inductieSensor(hoek);
@@ -106,6 +109,7 @@ void loop() {
   }
   else if (positieInt == 3) {
     hoek = 9;
+    Serial.println("Beginnen met potje oppakken");
     potjeOpakken();
     DC_rechts();
     inductieSensor(hoek);
@@ -117,6 +121,7 @@ void loop() {
   }
   else if (positieInt == 4) {
     hoek = 12;
+    Serial.println("Beginnen met potje oppakken");
     potjeOpakken();
     DC_rechts();
     inductieSensor(hoek);
