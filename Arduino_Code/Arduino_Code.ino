@@ -13,8 +13,8 @@ int positieInt = 2;
 String positieString;
 String command;
 int inductie = 7;
-int calibiratieL = A0;
-int calibritaieR = A1;
+int calibratieL = A0;
+int calibratieR = A1;
 int cilinderIn = A2;
 int cilinderUit = A3;
 int grijperHoog = A4;
@@ -63,21 +63,96 @@ void loop() {
     
   }else if (command == "CALIBRATE"){
     //Hier alle code voor het kalibreren
-//    if(calibiratieL < 450 && calibiratieR < 450){
-//      Serial.println("SBROKEN");
-//    }else if(calibratieR>450){
-//      DC_rechts();
-//      while(calibratieR>450){}
-//      DC_stop();
-//    }
-//    
-//    if(cilinderIn < 450 && cilinderUit < 450){
-//      Serial.println("CBROKEN");
-//    }
-//    
-//    if(grijperHoog < 450 && grijperLaag < 450){
-//      Serial.println("GBROKEN");
-//    }
+
+    if(cilinderIn < 450 && cilinderUit < 450){
+      Serial.println("CBROKEN");
+    }else{
+      Serial.println("cilinder op HIGH");
+      digitalWrite(cilinder, LOW);
+      for (int x=0;x < 100;x++){
+        delay(100);
+        if(cilinderIn<450){
+          break;
+          }
+        }
+        if(cilinderIn>450){
+        Serial.println("CYLINDER_OPEN_ERROR");
+        }
+      digitalWrite(cilinder, HIGH);
+      for (int x=0;x < 100;x++){
+        delay(100);
+        if(cilinderUit<450){
+          break;
+          }
+        }
+        if(cilinderUit>450){
+        Serial.println("CYLINDER_OPEN_ERROR");
+        }
+        
+      }
+      
+    if(grijperHoog < 450 && grijperLaag < 450){
+      Serial.println("GBROKEN");
+    }else if(grijperLaag<450){
+      stepperOmhoog();
+      
+      for (int x=0;x < 100;x++){
+        delay(100);
+        if(grijperHoog<450){
+          break;
+          }
+        }
+       if(grijperHoog>450){
+        Serial.println("STEPPER_LIFT_ERROR");
+       }
+    }else if(grijperHoog<450){
+       stepperOmlaag();
+      
+      for (int x=0;x < 100;x++){
+        delay(100);
+        if(grijperLaag<450){
+          break;
+          }
+        }
+       if(grijperLaag>450){
+        Serial.println("STEPPER_DOWN_ERROR");
+       }
+    }else{
+      stepperOmhoog();
+      
+      for (int x=0;x < 100;x++){
+        delay(100);
+        if(grijperHoog<450){
+          break;
+          }
+        }
+       if(grijperHoog>450){
+        Serial.println("STEPPER_LIFT_ERROR");
+       }
+
+       stepperOmlaag();
+      
+      for (int x=0;x < 100;x++){
+        delay(100);
+        if(grijperLaag<450){
+          break;
+          }
+        }
+       if(grijperLaag>450){
+        Serial.println("STEPPER_DOWN_ERROR");
+       }
+    }
+
+    
+    if(calibratieL < 450 && calibratieR < 450){
+      Serial.println("SBROKEN");
+    }else if(calibratieR>450){
+      DC_rechts();
+      while(calibratieR>450){}
+      DC_stop();
+    }
+    
+    
     
 
     
