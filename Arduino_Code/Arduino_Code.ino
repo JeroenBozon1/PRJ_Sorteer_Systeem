@@ -233,13 +233,13 @@ void loop() {
 void DC_links() {
   Serial.println("DC_Links geinitialiseerd");
   analogWrite(10, 0);
-  analogWrite(11, 150);
+  analogWrite(11, speedDC);
 }
 
 // DC motor rechts omdraaien
 void DC_rechts() {
   Serial.println("DC_Rechts geinitialiseerd");
-  analogWrite(10, 150);
+  analogWrite(10, speedDC);
   analogWrite(11, 0);
 }
 
