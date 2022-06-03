@@ -21,7 +21,7 @@ int grijperHoog = A4;
 int grijperLaag = A5;
 int cilinder = 8;
 
-int speedDC = 150;
+int speedDC = 100;
 
 boolean automaticMode = false;
 boolean stopped = false;
@@ -181,48 +181,50 @@ void loop() {
     }
   }
 
-  if (positieInt == 1) {
+  if (positieInt == 2) {
     hoek = 3;
     potjeOpakken();
     DC_links();
-    inductieSensor(hoek);
+    inductieSensor(hoek, false);
     DC_stop();
     potjeNeerzetten();
     DC_rechts();
-    inductieSensor(hoek);
+    inductieSensor(hoek+1, true);
     DC_stop();
   }
-  else if (positieInt == 2) {
+  else if (positieInt == 4) {
     hoek = 3;
     potjeOpakken();
     DC_rechts();
-    inductieSensor(hoek);
+    inductieSensor(hoek, true);
     DC_stop();
     potjeNeerzetten();
+    speedDC = 80;
     DC_links();
-    inductieSensor(hoek);
+    inductieSensor(hoek+1, false);
     DC_stop();
+    speedDC = 150;
   }
   else if (positieInt == 3) {
     hoek = 9;
     potjeOpakken();
     DC_rechts();
-    inductieSensor(hoek);
+    inductieSensor(hoek, true);
     DC_stop();
     potjeNeerzetten();
     DC_links();
-    inductieSensor(hoek);
+    inductieSensor(hoek+1, false);
     DC_stop();
   }
-  else if (positieInt == 4) {
+  else if (positieInt == 1) {
     hoek = 12;
     potjeOpakken();
     DC_rechts();
-    inductieSensor(hoek);
+    inductieSensor(hoek, true);
     DC_stop();
     potjeNeerzetten();
     DC_links();
-    inductieSensor(hoek);
+    inductieSensor(hoek+1, false);
     DC_stop();
   }
   positieInt = 0;
@@ -262,13 +264,25 @@ void cylinderIn(){
 
 
 // Tellen met inductiesensor
-int inductieSensor(int Hoek) {
+int inductieSensor(int Hoek, boolean side) {
   Serial.println("inductieSensor geinitialiseerd");
+  while (digitalRead(inductie) == 1) {}
+  
   for (int x = 0; x < Hoek; x++) { //0 metaal, 1 lucht)
     while (digitalRead(inductie) == 0) {}
 //Serial.println(digitalRead(inductie));
 
     while (digitalRead(inductie) == 1) {}
+
+    if(x == (Hoek-2)){
+      speedDC = 70;
+      if(side){
+        DC_rechts();
+      }else{
+        DC_links();
+      }
+      speedDC = 150;
+    }
 //Serial.println(digitalRead(inductie));
     Serial.println("Stap " + String(x) + " van de " + String(Hoek));
   }

@@ -25,7 +25,7 @@ errormessage = ""
 arduinoMessage = ""
 
 #De comport waarop de arduino is aangesloten
-comPort = "COM9"
+comPort = "COM7"
 
 
 try:
