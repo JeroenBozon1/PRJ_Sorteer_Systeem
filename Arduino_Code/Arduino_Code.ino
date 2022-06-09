@@ -20,6 +20,7 @@ int cilinderUit = A3;
 int grijperHoog = A4;
 int grijperLaag = A5;
 int cilinder = 8;
+int potDetectieSensor = 9;
 
 int speedDC = 100;
 
