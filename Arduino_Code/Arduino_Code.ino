@@ -32,19 +32,20 @@ void loop() {
 
 
   // Aan de hand van seriele communcatie positie kiezen
-//  while (Serial.available() == 0) {}
-//  positie = Serial.parseInt();
-  //Serial.println(positie);
+  while (Serial.available() == 0) {}
+  positie = Serial.parseInt();
+  Serial.println(positie);
 
 //Aan de hand van i2c positie kiezen
-Wire.requestFrom(2, 1);    // request 1 bytes from peripheral device #2
-
-while (Wire.available()) { // peripheral may send less than requested
-  char c = Wire.read(); // receive a byte as character
+//Wire.requestFrom(2, 1);    // request 1 bytes from peripheral device #2
+//
+//while (Wire.available()) { // peripheral may send less than requested
+//  char c = Wire.read(); // receive a byte as character
 
 
   if (positie == 1) {
     hoek = 3;
+    while(digitalRead(9) == HIGH){}
     potjeOpakken();
     DC_links();
     inductieSensor(hoek);
@@ -53,9 +54,11 @@ while (Wire.available()) { // peripheral may send less than requested
     DC_rechts();
     inductieSensor(hoek);
     DC_stop();
+    Serial.println(0);
   }
   else if (positie == 2) {
     hoek = 3;
+    while(digitalRead(9) == HIGH){}
     potjeOpakken();
     DC_rechts();
     inductieSensor(hoek);
@@ -64,9 +67,11 @@ while (Wire.available()) { // peripheral may send less than requested
     DC_links();
     inductieSensor(hoek);
     DC_stop();
+    Serial.println(1);
   }
   else if (positie == 3) {
     hoek = 9;
+    while(digitalRead(9) == HIGH){}
     potjeOpakken();
     DC_rechts();
     inductieSensor(hoek);
@@ -75,9 +80,11 @@ while (Wire.available()) { // peripheral may send less than requested
     DC_links();
     inductieSensor(hoek);
     DC_stop();
+    Serial.println(2);
   }
   else if (positie == 4) {
     hoek = 12;
+    while(digitalRead(9) == HIGH){}
     potjeOpakken();
     DC_rechts();
     inductieSensor(hoek);
@@ -86,10 +93,11 @@ while (Wire.available()) { // peripheral may send less than requested
     DC_links();
     inductieSensor(hoek);
     DC_stop();
+    Serial.println(3);
   }
   positie = 0;
 }
-}
+
 
 // DC motor links omdraaien
 void DC_links() {

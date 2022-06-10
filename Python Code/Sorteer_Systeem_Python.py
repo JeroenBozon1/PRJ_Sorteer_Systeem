@@ -8,6 +8,7 @@ fontSize = 15
 fontText = ("Calibri", fontSize)
 errorFont = ("Calibri", 25)
 waitlist = []
+register = []
 comPort = "COM4"
 comPortSchool = "COM10"
 
@@ -183,12 +184,13 @@ listBoxMessages.grid(column=0, row=5, columnspan=2, rowspan=1, sticky="nsew", pa
 #     listBoxRegister.insert(i, "Nummer" + str(i))
 # Als er string verstuurd worden moet je print(serialArduino.readline().decode())
 
-def testprint():
+def register():
     if serialArduino.in_waiting > 0:
-        print(serialArduino.readline().decode())
-    windowMain.after(50, testprint)
+        register.append(serialArduino.readline().decode())
+        print(register[])
+    windowMain.after(50, register)
 
 windowMain.protocol("WM_DELETE_WINDOW", quit)
-windowMain.after(50, testprint)
+windowMain.after(50, register)
 windowMain.mainloop()
 
