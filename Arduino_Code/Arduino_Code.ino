@@ -13,15 +13,16 @@ int positieInt = 2;
 String positieString;
 String command;
 int inductie = 7;
-int calibiratieL = A0;
-int calibritaieR = A1;
+int calibratieL = A0;
+int calibratieR = A1;
 int cilinderIn = A2;
 int cilinderUit = A3;
 int grijperHoog = A4;
 int grijperLaag = A5;
 int cilinder = 8;
+int potDetectieSensor = 9;
 
-int speedDC = 150;
+int speedDC = 100;
 
 boolean automaticMode = false;
 boolean stopped = false;
@@ -63,21 +64,96 @@ void loop() {
     
   }else if (command == "CALIBRATE"){
     //Hier alle code voor het kalibreren
-//    if(calibiratieL < 450 && calibiratieR < 450){
-//      Serial.println("SBROKEN");
-//    }else if(calibratieR>450){
-//      DC_rechts();
-//      while(calibratieR>450){}
-//      DC_stop();
-//    }
-//    
-//    if(cilinderIn < 450 && cilinderUit < 450){
-//      Serial.println("CBROKEN");
-//    }
-//    
-//    if(grijperHoog < 450 && grijperLaag < 450){
-//      Serial.println("GBROKEN");
-//    }
+
+    if(cilinderIn < 450 && cilinderUit < 450){
+      Serial.println("CBROKEN");
+    }else{
+      Serial.println("cilinder op HIGH");
+      digitalWrite(cilinder, LOW);
+      for (int x=0;x < 100;x++){
+        delay(100);
+        if(cilinderIn<450){
+          break;
+          }
+        }
+        if(cilinderIn>450){
+        Serial.println("CYLINDER_OPEN_ERROR");
+        }
+      digitalWrite(cilinder, HIGH);
+      for (int x=0;x < 100;x++){
+        delay(100);
+        if(cilinderUit<450){
+          break;
+          }
+        }
+        if(cilinderUit>450){
+        Serial.println("CYLINDER_OPEN_ERROR");
+        }
+        
+      }
+      
+    if(grijperHoog < 450 && grijperLaag < 450){
+      Serial.println("GBROKEN");
+    }else if(grijperLaag<450){
+      stepperOmhoog();
+      
+      for (int x=0;x < 100;x++){
+        delay(100);
+        if(grijperHoog<450){
+          break;
+          }
+        }
+       if(grijperHoog>450){
+        Serial.println("STEPPER_LIFT_ERROR");
+       }
+    }else if(grijperHoog<450){
+       stepperOmlaag();
+      
+      for (int x=0;x < 100;x++){
+        delay(100);
+        if(grijperLaag<450){
+          break;
+          }
+        }
+       if(grijperLaag>450){
+        Serial.println("STEPPER_DOWN_ERROR");
+       }
+    }else{
+      stepperOmhoog();
+      
+      for (int x=0;x < 100;x++){
+        delay(100);
+        if(grijperHoog<450){
+          break;
+          }
+        }
+       if(grijperHoog>450){
+        Serial.println("STEPPER_LIFT_ERROR");
+       }
+
+       stepperOmlaag();
+      
+      for (int x=0;x < 100;x++){
+        delay(100);
+        if(grijperLaag<450){
+          break;
+          }
+        }
+       if(grijperLaag>450){
+        Serial.println("STEPPER_DOWN_ERROR");
+       }
+    }
+
+    
+    if(calibratieL < 450 && calibratieR < 450){
+      Serial.println("SBROKEN");
+    }else if(calibratieR>450){
+      DC_rechts();
+      while(calibratieR>450){}
+      DC_stop();
+    }
+    
+    
     
 
     
@@ -106,48 +182,50 @@ void loop() {
     }
   }
 
-  if (positieInt == 1) {
+  if (positieInt == 2) {
     hoek = 3;
     potjeOpakken();
     DC_links();
-    inductieSensor(hoek);
+    inductieSensor(hoek, false);
     DC_stop();
     potjeNeerzetten();
     DC_rechts();
-    inductieSensor(hoek);
+    inductieSensor(hoek, true);
     DC_stop();
   }
-  else if (positieInt == 2) {
+  else if (positieInt == 4) {
     hoek = 3;
     potjeOpakken();
     DC_rechts();
-    inductieSensor(hoek);
+    inductieSensor(hoek, true);
     DC_stop();
     potjeNeerzetten();
+    speedDC = 80;
     DC_links();
-    inductieSensor(hoek);
+    inductieSensor(hoek, false);
     DC_stop();
+    speedDC = 150;
   }
   else if (positieInt == 3) {
     hoek = 9;
     potjeOpakken();
     DC_rechts();
-    inductieSensor(hoek);
+    inductieSensor(hoek, true);
     DC_stop();
     potjeNeerzetten();
     DC_links();
-    inductieSensor(hoek);
+    inductieSensor(hoek, false);
     DC_stop();
   }
-  else if (positieInt == 4) {
+  else if (positieInt == 1) {
     hoek = 12;
     potjeOpakken();
     DC_rechts();
-    inductieSensor(hoek);
+    inductieSensor(hoek, true);
     DC_stop();
     potjeNeerzetten();
     DC_links();
-    inductieSensor(hoek);
+    inductieSensor(hoek, false);
     DC_stop();
   }
   positieInt = 0;
@@ -158,13 +236,13 @@ void loop() {
 void DC_links() {
   Serial.println("DC_Links geinitialiseerd");
   analogWrite(10, 0);
-  analogWrite(11, 150);
+  analogWrite(11, speedDC);
 }
 
 // DC motor rechts omdraaien
 void DC_rechts() {
   Serial.println("DC_Rechts geinitialiseerd");
-  analogWrite(10, 150);
+  analogWrite(10, speedDC);
   analogWrite(11, 0);
 }
 
@@ -187,13 +265,25 @@ void cylinderIn(){
 
 
 // Tellen met inductiesensor
-int inductieSensor(int Hoek) {
+int inductieSensor(int Hoek, boolean side) {
   Serial.println("inductieSensor geinitialiseerd");
+  while (digitalRead(inductie) == 1) {}
+  
   for (int x = 0; x < Hoek; x++) { //0 metaal, 1 lucht)
-    while (digitalRead(inductie) == 0) {}
+    while (digitalRead(inductie) == 1) {}
 //Serial.println(digitalRead(inductie));
 
-    while (digitalRead(inductie) == 1) {}
+    while (digitalRead(inductie) == 0) {}
+
+    if(x == (Hoek-2)){
+      speedDC = 70;
+      if(side){
+        DC_rechts();
+      }else{
+        DC_links();
+      }
+      speedDC = 150;
+    }
 //Serial.println(digitalRead(inductie));
     Serial.println("Stap " + String(x) + " van de " + String(Hoek));
   }
@@ -207,7 +297,7 @@ void stepperOmhoog() {
   digitalWrite(2, LOW);
   digitalWrite(4, LOW);
 
-  Serial.println("Stepperomlaag gaat omhoog");
+  Serial.println("Stepper gaat omhoog");
   while(analogRead(grijperHoog) > 450){
     digitalWrite(3, HIGH);
     delay(1);
@@ -227,7 +317,6 @@ void stepperOmlaag() {
 
   Serial.println("Stepper gaat omlaag");
   while(analogRead(grijperLaag) > 450){
-    Serial.println("Bezig met omlaag gaan...");
     digitalWrite(3, HIGH);
     delay(1);
     digitalWrite(3, LOW);

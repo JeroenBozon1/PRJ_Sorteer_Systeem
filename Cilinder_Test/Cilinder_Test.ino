@@ -17,8 +17,10 @@ void loop() {
 
 void cylinderOut(){
   digitalWrite(cilinder, HIGH);
+  Serial.println("Cilinder op HIGH");
 }
 
 void cylinderIn(){
   digitalWrite(cilinder, LOW);
+  Serial.println("Cilinder op LOW");
 }
