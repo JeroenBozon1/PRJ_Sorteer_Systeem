@@ -244,9 +244,13 @@ def getArduinoMessage():
     if serialArduino.in_waiting > 0:
         arduinoMessage = serialArduino.readline().decode()
         print(arduinoMessage)
-        # Testcode voor het krijgen van een bericht via I2C
+        if arduinoMessage == "CYLINDER_OPEN_ERROR" or "CYLINDER_OPEN_ERROR" or "TURN_RIGHT_BLOCKED_ERROR" or "TURN_LEFT_BLOCKED_ERROR" or "TURN_BLOCKED_ERROR" or "STEPPER_LIFT_ERROR" or "STEPPER_DOWN_ERROR" or "CYLINDER_CLOSED_ERROR":
+            errormessage = arduinoMessage
+            listBoxMessages.insert(0, errormessage)
+
         if arduinoMessage == "0" or arduinoMessage == "1" or arduinoMessage == "2" or arduinoMessage == "3":
             print("Verplaatsing voltooid, pot verplaatst naar plek: " + arduinoMessage)
+            listBoxMessages.insert(0, "Verplaatsing voltooid, pot verplaatst naar plek: " + arduinoMessage)
             errormessage = "Geen fouten tijdens uitvoering"
 
             information = [arduinoMessage, errormessage]
@@ -258,7 +262,8 @@ def getArduinoMessage():
 
                 # write a row to the csv file
                 writer.writerow(information)
-
+        else:
+            listBoxMessages.insert(0, "Actie: " + arduinoMessage)
     windowMain.after(1, getArduinoMessage)
 
 windowMain.protocol("WM_DELETE_WINDOW", quit)

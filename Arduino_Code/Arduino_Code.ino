@@ -190,7 +190,7 @@ void loop() {
     DC_stop();
     potjeNeerzetten();
     DC_rechts();
-    inductieSensor(hoek+1, true);
+    inductieSensor(hoek, true);
     DC_stop();
   }
   else if (positieInt == 4) {
@@ -202,7 +202,7 @@ void loop() {
     potjeNeerzetten();
     speedDC = 80;
     DC_links();
-    inductieSensor(hoek+1, false);
+    inductieSensor(hoek, false);
     DC_stop();
     speedDC = 150;
   }
@@ -214,7 +214,7 @@ void loop() {
     DC_stop();
     potjeNeerzetten();
     DC_links();
-    inductieSensor(hoek+1, false);
+    inductieSensor(hoek, false);
     DC_stop();
   }
   else if (positieInt == 1) {
@@ -225,7 +225,7 @@ void loop() {
     DC_stop();
     potjeNeerzetten();
     DC_links();
-    inductieSensor(hoek+1, false);
+    inductieSensor(hoek, false);
     DC_stop();
   }
   positieInt = 0;
@@ -270,10 +270,10 @@ int inductieSensor(int Hoek, boolean side) {
   while (digitalRead(inductie) == 1) {}
   
   for (int x = 0; x < Hoek; x++) { //0 metaal, 1 lucht)
-    while (digitalRead(inductie) == 0) {}
+    while (digitalRead(inductie) == 1) {}
 //Serial.println(digitalRead(inductie));
 
-    while (digitalRead(inductie) == 1) {}
+    while (digitalRead(inductie) == 0) {}
 
     if(x == (Hoek-2)){
       speedDC = 70;
@@ -297,7 +297,7 @@ void stepperOmhoog() {
   digitalWrite(2, LOW);
   digitalWrite(4, LOW);
 
-  Serial.println("Stepperomlaag gaat omhoog");
+  Serial.println("Stepper gaat omhoog");
   while(analogRead(grijperHoog) > 450){
     digitalWrite(3, HIGH);
     delay(1);
@@ -317,7 +317,6 @@ void stepperOmlaag() {
 
   Serial.println("Stepper gaat omlaag");
   while(analogRead(grijperLaag) > 450){
-    Serial.println("Bezig met omlaag gaan...");
     digitalWrite(3, HIGH);
     delay(1);
     digitalWrite(3, LOW);
