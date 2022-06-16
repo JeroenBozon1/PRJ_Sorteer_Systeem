@@ -5,6 +5,7 @@ import serial
 import csv
 
 windowMain = Tk()
+starting = True
 
 #Alle font functies
 fontSize = 15
@@ -23,9 +24,10 @@ stopped = False
 #De tekst die in een errormessage komt te staan
 errormessage = ""
 arduinoMessage = ""
+information = []
 
 #De comport waarop de arduino is aangesloten
-comPort = "COM7"
+comPort = "COM9"
 
 
 try:
@@ -37,8 +39,7 @@ except:
 
 #dit is de main klasse die activeert als de start knop wordt ingedrukt
 def startMain():
-    global modeMessage
-    global stopped
+    global modeMessage, stopped, starting
     #Als modemessage auto is dan moet de machine op automatische stand werken
     if modeMessage == "AUTO":
         print("Automatische wachtrij geselecteerd")
@@ -80,7 +81,7 @@ def updateListbox():
     if len(waitlist) > 0:
         place = len(waitlist) - 1
         print(place)
-        listBoxWaitlist.insert(place, waitlist[place])
+        listBoxWaitlist.insert(place, "Pot moet naar positie " + str(waitlist[place]) + " worden verplaatst")
     else:
         place = 0
         print(place)
@@ -105,6 +106,7 @@ def automaticWaitlistEnable():
     modeMessage = "AUTO"
     previousModeMessage = "AUTO"
     print("wachtrij modus naar automatisch aangepast")
+    # serialArduino.write(modeMessage.encode())
 
 #Alle manualWaitlist functies zijn gekoppeld aan de knoppen die openen bij de handmatige invoer van een wachtrij,
 #ze voegen aan de array waitlist een cijfer toe die bij de knop hoort en voert updateListbox() uit
@@ -142,6 +144,8 @@ def openManualButtonWindow():
     global modeMessage
     modeMessage = "MANUAL"
     previousModeMessage = "MANUAL"
+    manual = "MANUAL"
+    serialArduino.write(manual.encode())
     print("wachtrij modus naar handmatig aangepast")
 
     buttonWindow = Toplevel(windowMain)
@@ -239,21 +243,52 @@ listBoxMessages.grid(column=0, row=5, columnspan=2, rowspan=1, sticky="nsew", pa
 # Als er string verstuurd worden moet je print(serialArduino.readline().decode())
 
 def getArduinoMessage():
-    global arduinoMessage
-    global errormessage
+    global arduinoMessage, errormessage, information, serialArduino
+
+
     if serialArduino.in_waiting > 0:
-        arduinoMessage = serialArduino.readline().decode()
-        print(arduinoMessage)
-        if arduinoMessage == "CYLINDER_OPEN_ERROR" or "CYLINDER_OPEN_ERROR" or "TURN_RIGHT_BLOCKED_ERROR" or "TURN_LEFT_BLOCKED_ERROR" or "TURN_BLOCKED_ERROR" or "STEPPER_LIFT_ERROR" or "STEPPER_DOWN_ERROR" or "CYLINDER_CLOSED_ERROR":
+        try:
+            arduinoMessage = serialArduino.readline().decode()
+        except UnicodeDecodeError:
+            print("Kon arduino bericht niet decoden.")
+            windowMain.after(20, getArduinoMessage)
+            return
+        print("arduinomessage: " + str(arduinoMessage))
+        if arduinoMessage.strip() == "NEXT":
+            print("Wachtrij aangevraagd")
+            if len(waitlist) > 0:
+                print("wachtrij verstuurd")
+                messageToArduino(str(waitlist[0]+1))
+                waitlist.pop(0)
+
+        if arduinoMessage.strip() == "CYLINDER_OPEN_ERROR" or arduinoMessage.strip() =="TURN_RIGHT_BLOCKED_ERROR" or arduinoMessage.strip() =="TURN_LEFT_BLOCKED_ERROR" or arduinoMessage.strip() =="TURN_BLOCKED_ERROR" or arduinoMessage.strip() =="STEPPER_LIFT_ERROR" or arduinoMessage.strip() =="STEPPER_DOWN_ERROR" or arduinoMessage.strip() =="CYLINDER_CLOSED_ERROR" or arduinoMessage.strip() =="CYLINDER_ERROR" or arduinoMessage.strip() =="STEPPER_ERROR" or arduinoMessage.strip() =="DC_ERROR":
             errormessage = arduinoMessage
             listBoxMessages.insert(0, errormessage)
+            information = ["Error occured, position not reached", errormessage]
 
-        if arduinoMessage == "0" or arduinoMessage == "1" or arduinoMessage == "2" or arduinoMessage == "3":
-            print("Verplaatsing voltooid, pot verplaatst naar plek: " + arduinoMessage)
-            listBoxMessages.insert(0, "Verplaatsing voltooid, pot verplaatst naar plek: " + arduinoMessage)
+            with open('logboek.csv', 'w', encoding='UTF8', newline='') as logboek:
+                # create the csv writer
+                writer = csv.writer(logboek)
+                # write a row to the csv file
+                writer.writerow(information)
+
+            with open('logboek.csv', 'r', encoding='UTF8', newline='') as logboek:
+                csv_reader = csv.reader(logboek, delimiter=',')
+                listBoxRegister.option_clear()
+                rows = []
+                for row in csv_reader:
+                    rows.append(row)
+                    print(row)
+
+                listBoxRegister.insert(0, rows[0])
+
+        if arduinoMessage.strip() == "1" or arduinoMessage.strip() == "2" or arduinoMessage.strip() == "3" or arduinoMessage.strip() == "4":
+            message = str(int(arduinoMessage)-1)
+            print("Verplaatsing voltooid, pot verplaatst naar plek: " + message)
+            listBoxMessages.insert(0, "Verplaatsing voltooid, pot verplaatst naar plek: " + message)
             errormessage = "Geen fouten tijdens uitvoering"
 
-            information = [arduinoMessage, errormessage]
+            information = [message, errormessage]
 
             #Het programma om in een csv logboek de dingen op te slaan
             with open('logboek.csv', 'w', encoding='UTF8', newline='') as logboek:
@@ -262,6 +297,16 @@ def getArduinoMessage():
 
                 # write a row to the csv file
                 writer.writerow(information)
+
+            with open('logboek.csv', 'r', encoding='UTF8', newline='') as logboek:
+                csv_reader = csv.reader(logboek, delimiter=',')
+                listBoxRegister.option_clear()
+                rows = []
+                for row in csv_reader:
+                    rows.append(row)
+                    print(row)
+
+                listBoxRegister.insert(0, rows[0])
         else:
             listBoxMessages.insert(0, "Actie: " + arduinoMessage)
     windowMain.after(1, getArduinoMessage)

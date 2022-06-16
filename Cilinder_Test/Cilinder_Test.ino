@@ -5,14 +5,14 @@ void setup() {
   Serial.begin(9600);
   pinMode(cilinder, OUTPUT);
   
-  cylinderOut();
-  delay(3000);
-  cylinderIn();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  
+  delay(3000);
+  cylinderOut();
+  delay(3000);
+  cylinderIn();
 }
 
 void cylinderOut(){
