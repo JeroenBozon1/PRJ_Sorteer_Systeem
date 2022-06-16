@@ -25,6 +25,8 @@ int cilinder = 8;
 int potDetectieSensor = 9;
 
 int speedDC = 100;
+int previousSpeed = 0;
+int dcStepSize = 10;
 
 boolean automaticMode = false;
 boolean stopped = false;
@@ -52,16 +54,16 @@ void setup() {
   if(digitalRead(grijperLaag) == HIGH){
     stepperOmlaag();
   }
+
+  DC_links(speedDC);
+  while(analogRead(calibratieL)>450){}
   
-  while(analogRead(calibratieL)>450){
-    DC_links();
-  }
-  DC_stop();
+  DC_stop(speedDC, false);
   delay(500);
   speedDC = 255;
-  DC_rechts();
+  DC_rechts(speedDC);
   inductieSensor(6, true);
-  DC_stop();
+  DC_stop(speedDC, true);
   speedDC = 255;
 
   
@@ -199,65 +201,65 @@ void loop() {
     if (analogRead(calibratieL) < 450 && analogRead(calibratieR) < 450) {
       Serial.println("DC_ERROR");
     } else if (analogRead(calibratieR) > 450 && analogRead(calibratieL) > 450) {
-      DC_rechts();
+      DC_rechts(speedDC);
       for (int x = 0; x < 100; x++) {
         delay(100);
         if (analogRead(calibratieR) < 450) {
-          DC_stop();
+          DC_stop(speedDC, true);
           break;
         }
       }
       if (analogRead(calibratieR) > 450) {
-        DC_stop();
+        DC_stop(speedDC, true);
         Serial.println("TURN_RIGHT_BLOCKED_ERROR");
       }
-      DC_stop();
+      DC_stop(speedDC, true);
 
-      DC_links();
+      DC_links(speedDC);
       for (int x = 0; x < 100; x++) {
         delay(100);
         if (analogRead(calibratieL) < 450) {
-          DC_stop();
+          DC_stop(speedDC, false);
           break;
         }
       }
       if (analogRead(calibratieL) > 450) {
-        DC_stop();
+        DC_stop(speedDC, false);
         Serial.println("TURN_LEFT_BLOCKED_ERROR");
       }
-      DC_stop();
+      DC_stop(speedDC, false);
     } else if (analogRead(calibratieR) > 450) {
-      DC_rechts();
+      DC_rechts(speedDC);
       for (int x = 0; x < 100; x++) {
         delay(100);
         if (analogRead(calibratieR) < 450) {
-          DC_stop();
+          DC_stop(speedDC, true);
           break;
         }
       }
       if (analogRead(calibratieR) > 450) {
-        DC_stop();
+        DC_stop(speedDC, true);
         Serial.println("TURN_RIGHT_BLOCKED_ERROR");
       }
-      DC_stop();
+      DC_stop(speedDC, true);
     } else if (analogRead(calibratieL) > 450) {
-      DC_links();
+      DC_links(speedDC);
       for (int x = 0; x < 100; x++) {
         delay(100);
         if (analogRead(calibratieL) < 450) {
-          DC_stop();
+          DC_stop(speedDC, false);
           break;
         }
       }
       if (analogRead(calibratieL) > 450) {
-        DC_stop();
+        DC_stop(speedDC, false);
         Serial.println("TURN_RIGHT_BLOCKED_ERROR");
       }
-      DC_stop();
+      DC_stop(speedDC, false);
     }
-    DC_rechts();
+    DC_rechts(speedDC);
     inductieSensor(7, true);
-    DC_stop();
+    DC_stop(speedDC, true);
     speedDC = 255;
   
     stopped = true;
@@ -294,60 +296,60 @@ void loop() {
     hoek = 3;
     potjeOpakken();
     delay(20);
-    DC_links();
+    DC_links(speedDC);
     inductieSensor(hoek, false);
-    DC_stop();
+    DC_stop(speedDC, false);
     delay(20);
     potjeNeerzetten();
     delay(20);
-    DC_rechts();
+    DC_rechts(speedDC);
     inductieSensor(hoek, true);
-    DC_stop();
+    DC_stop(speedDC, true);
     Serial.println("2");
   }
   else if (positieInt == 4) {
     hoek = 3;
     potjeOpakken();
     delay(20);
-    DC_rechts();
+    DC_rechts(speedDC);
     inductieSensor(hoek, true);
-    DC_stop();
+    DC_stop(speedDC, true);
     delay(20);
     potjeNeerzetten();
     delay(20);
-    DC_links();
+    DC_links(speedDC);
     inductieSensor(hoek, false);
-    DC_stop();
+    DC_stop(speedDC, false);
     Serial.println("4");
   }
   else if (positieInt == 3) {
     hoek = 9;
     potjeOpakken();
     delay(20);
-    DC_rechts();
+    DC_rechts(speedDC);
     inductieSensor(hoek, true);
-    DC_stop();
+    DC_stop(speedDC, true);
     delay(20);
     potjeNeerzetten();
     delay(20);
-    DC_links();
+    DC_links(speedDC);
     inductieSensor(hoek, false);
-    DC_stop();
+    DC_stop(speedDC, false);
     Serial.println("3");
   }
   else if (positieInt == 1) {
     hoek = 12;
     potjeOpakken();
     delay(20);
-    DC_rechts();
+    DC_rechts(speedDC);
     inductieSensor(hoek, true);
-    DC_stop();
+    DC_stop(speedDC, true);
     delay(20);
     potjeNeerzetten();
     delay(20);
-    DC_links();
+    DC_links(speedDC);
     inductieSensor(hoek, false);
-    DC_stop();
+    DC_stop(speedDC, false);
     Serial.println("1");
   }
   positieInt = 0;
@@ -355,22 +357,57 @@ void loop() {
 
 
 // DC motor links omdraaien
-void DC_links() {
-  analogWrite(10, 0);
-  analogWrite(11, speedDC);
+void DC_links(int speedOfDC) {
+  if(previousSpeed>speedOfDC){
+    for(int x=0; x<=speedOfDC; x-=dcStepSize){
+      analogWrite(10, 0);
+      analogWrite(11, x);
+      delay(1);
+    }
+  }else{
+    for(int x=0; x<=speedOfDC; x+=dcStepSize){
+      analogWrite(10, 0);
+      analogWrite(11, x);
+      delay(1);
+    }
+  }
+  previousSpeed = speedOfDC;
 }
 
 // DC motor rechts omdraaien
-void DC_rechts() {
-  analogWrite(10, speedDC);
-  analogWrite(11, 0);
+void DC_rechts(int speedOfDC) {
+  if(previousSpeed>speedOfDC){
+    for(int x=0; x<=speedOfDC; x-=dcStepSize){
+      analogWrite(10, x);
+      analogWrite(11, 0);
+      delay(1);
+    }
+  }else{
+    for(int x=0; x<=speedOfDC; x+=dcStepSize){
+      analogWrite(10, x);
+      analogWrite(11, 0);
+      delay(1);
+    }
+  }
+  previousSpeed = speedOfDC;
 }
 
 // DC motor stoppen omdraaien
-void DC_stop() {
+void DC_stop(int speedOfDC, boolean side) {
   Serial.println("DC_Stop geinitialiseerd");
-  analogWrite(10, 0);
-  analogWrite(11, 0);
+  if(side){
+    for(int x=speedOfDC; x>=0; x-=dcStepSize){
+      analogWrite(10, x);
+      analogWrite(11, 0);
+      delay(1);
+    }
+  }else{
+    for(int x=speedOfDC; x>=0; x-=dcStepSize){
+      analogWrite(10, 0);
+      analogWrite(11, x);
+      delay(1);
+    }
+  }
 }
 
 void cylinderOut() {
@@ -408,9 +445,9 @@ int inductieSensor(int Hoek, boolean side) {
     if (x == (Hoek - 2)) {
       speedDC = 80;
       if (side) {
-        DC_rechts();
+        DC_rechts(speedDC);
       } else {
-        DC_links();
+        DC_links(speedDC);
       }
       speedDC = 255;
     }
