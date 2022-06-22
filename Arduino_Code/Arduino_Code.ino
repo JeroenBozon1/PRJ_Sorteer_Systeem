@@ -17,8 +17,8 @@ String command;
 int induction = 7;
 int dcStopSensorLeft = A0;
 int dcStopSensorRight = A1;
-int cylinderIn = A3;
-int cylinderOut = A2;
+int cylinderInSensor = A3;
+int cylinderOutSensor = A2;
 int gripperUp = 5;
 int gripperDown = 6;
 int cylinder = 8;
@@ -116,29 +116,29 @@ void loop() {
   }else if (command == "CALIBRATE") {
     //Hier alle code voor het kalibreren
 
-    if (analogRead(cylinderIn) < 450 && analogRead(cylinderOut) < 450) {
+    if (analogRead(cylinderInSensor) < 450 && analogRead(cylinderOutSensor) < 450) {
       Serial.println("CYLINDER_ERROR");
     } else {
       Serial.println("cylinder schuift uit");
       digitalWrite(cylinder, HIGH);
       for (int x = 0; x < 100; x++) {
         delay(100);
-        if (analogRead(analogRead(cylinderOut)) < 450) {
+        if (analogRead(cylinderOutSensor) < 450) {
           break;
         }
       }
-      if (analogRead(cylinderOut) < 450) {
+      if (analogRead(cylinderOutSensor) < 450) {
         Serial.println("CYLINDER_OPEN_ERROR");
       }
       Serial.println("cylinder schuift in");
       digitalWrite(cylinder, LOW);
       for (int x = 0; x < 100; x++) {
         delay(100);
-        if (analogRead(cylinderOut) < 450) {
+        if (analogRead(cylinderOutSensor) < 450) {
           break;
         }
       }
-      if (analogRead(cylinderOut) < 450) {
+      if (analogRead(cylinderOutSensor) < 450) {
         Serial.println("CYLINDER_CLOSE_ERROR");
       }
 
@@ -410,35 +410,47 @@ void dc_Stop(int speedOfDC, boolean side) {
   }
 }
 
-void cylinderOut() {
-  Serial.println("cylinderOut geinitialiseerd");
-  digitalWrite(cylinder, HIGH);
-}
-
-void cylinderIn() {
-  Serial.println("cylinderIn geinitialiseerd");
-  digitalWrite(cylinder, LOW);
-}
+//void cylinderOut() {
+//  Serial.println("cylinderOut geinitialiseerd");
+//  digitalWrite(cylinder, HIGH);
+//}
+//
+//void cylinderIn() {
+//  Serial.println("cylinderIn geinitialiseerd");
+//  digitalWrite(cylinder, LOW);
+//}
 
 
 // Tellen met inductionsensor
 int inductionSensor(int positionAngle, boolean side) {
+  boolean error = false;
   Serial.println("inductionSensor geinitialiseerd");
   while (digitalRead(induction) == 1) {}
 
   for (int x = 0; x < positionAngle; x++) { //0 metaal, 1 lucht)
+
+    if(x==1){
+      error = true;
+    }
+    
     while (digitalRead(induction) == 1) {
       if(analogRead(dcStopSensorLeft)<450 || analogRead(dcStopSensorRight)<450){
-        Serial.println("DC_ERROR");
-        break;
+        if (error){
+          Serial.println("DC_ERROR");
+          error = false;
+          break;
+          }
         }
      }
     //Serial.println(digitalRead(induction));
 
     while (digitalRead(induction) == 0) {
       if(analogRead(dcStopSensorLeft)<450 || analogRead(dcStopSensorRight)<450){
-        Serial.println("DC_ERROR");
-        break;
+        if (error){
+          Serial.println("DC_ERROR");
+          error = false;
+          break;
+          }
         }
       }
 
@@ -517,11 +529,11 @@ void potGrab() {
   
   for (int x = 0; x < 10; x++) {
         delay(100);
-        if (analogRead(cylinderIn) < 450) {
+        if (analogRead(cylinderInSensor) < 450) {
           break;
         }
       }
-      if (analogRead(cylinderIn) < 450) {
+      if (analogRead(cylinderInSensor) < 450) {
         Serial.println("CYLINDER_OPEN_ERROR");
       }
 
@@ -531,11 +543,11 @@ void potGrab() {
 
   for (int x = 0; x < 100; x++) {
         delay(100);
-        if (analogRead(cylinderOut) < 450) {
+        if (analogRead(cylinderOutSensor) < 450) {
           break;
         }
       }
-      if (analogRead(cylinderOut) < 450) {
+      if (analogRead(cylinderOutSensor) < 450) {
         Serial.println("CYLINDER_CLOSE_ERROR");
       }
   Serial.println("Potje oppakken voltooid");
@@ -549,11 +561,11 @@ void potRelease() {
   digitalWrite(cylinder, HIGH);
   for (int x = 0; x < 10; x++) {
         delay(100);
-        if (analogRead(cylinderIn) < 450) {
+        if (analogRead(cylinderInSensor) < 450) {
           break;
         }
       }
-      if (analogRead(cylinderIn) < 450) {
+      if (analogRead(cylinderInSensor) < 450) {
         Serial.println("CYLINDER_OPEN_ERROR");
       }
 
@@ -564,11 +576,11 @@ void potRelease() {
   digitalWrite(cylinder, LOW);
   for (int x = 0; x < 100; x++) {
         delay(100);
-        if (analogRead(cylinderOut) < 450) {
+        if (analogRead(cylinderOutSensor) < 450) {
           break;
         }
       }
-      if (analogRead(cylinderOut) < 450) {
+      if (analogRead(cylinderOutSensor) < 450) {
         Serial.println("CYLINDER_CLOSE_ERROR");
       }
 
