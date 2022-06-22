@@ -266,7 +266,7 @@ def getArduinoMessage():
             listBoxMessages.insert(0, errormessage)
             information = ["Error occured, position not reached", errormessage]
 
-            with open('logboek.csv', 'w', encoding='UTF8', newline='') as logboek:
+            with open('logboek.csv', 'a', encoding='UTF8', newline='') as logboek:
                 # create the csv writer
                 writer = csv.writer(logboek)
                 # write a row to the csv file
@@ -275,12 +275,8 @@ def getArduinoMessage():
             with open('logboek.csv', 'r', encoding='UTF8', newline='') as logboek:
                 csv_reader = csv.reader(logboek, delimiter=',')
                 listBoxRegister.option_clear()
-                rows = []
                 for row in csv_reader:
-                    rows.append(row)
-                    print(row)
-
-                listBoxRegister.insert(0, rows[0])
+                    listBoxRegister.insert(0, row)
 
         if arduinoMessage.strip() == "1" or arduinoMessage.strip() == "2" or arduinoMessage.strip() == "3" or arduinoMessage.strip() == "4":
             message = str(int(arduinoMessage)-1)
@@ -291,22 +287,19 @@ def getArduinoMessage():
             information = [message, errormessage]
 
             #Het programma om in een csv logboek de dingen op te slaan
-            with open('logboek.csv', 'w', encoding='UTF8', newline='') as logboek:
+            with open('logboek.csv', 'a', encoding='UTF8', newline='') as logboek:
                 # create the csv writer
                 writer = csv.writer(logboek)
-
                 # write a row to the csv file
                 writer.writerow(information)
 
             with open('logboek.csv', 'r', encoding='UTF8', newline='') as logboek:
                 csv_reader = csv.reader(logboek, delimiter=',')
                 listBoxRegister.option_clear()
-                rows = []
                 for row in csv_reader:
-                    rows.append(row)
-                    print(row)
+                    listBoxRegister.insert(0, row)
 
-                listBoxRegister.insert(0, rows[0])
+
         else:
             listBoxMessages.insert(0, "Actie: " + arduinoMessage)
     windowMain.after(1, getArduinoMessage)
