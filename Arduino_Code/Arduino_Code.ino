@@ -27,7 +27,7 @@ int potDetectionSensor = 9;
 int speedDC = 150;
 int previousSpeed = 0;
 int dcDelay = 25;
-int delayWaitingTime = 100000;
+int delayWaitingTime = 10000;
 
 boolean automaticMode = false;
 boolean stopped = false;
@@ -69,7 +69,7 @@ void setup() {
   dc_Right();
   inductionSensor(6, true);
   dc_Stop();
-  speedDC = 150;
+  speedDC = 170;
   delay(200);
 
   
@@ -307,13 +307,13 @@ void loop() {
     dc_Left();
     inductionSensor(positionAngle, false);
     dc_Stop();
-    delay(200);
+    delay(20);
     potRelease();
     delay(20);
     dc_Right();
     inductionSensor(positionAngle, true);
     dc_Stop();
-    delay(200);
+    delay(20);
     Serial.println("2");
   }
   else if (positionInt == 4) {
@@ -323,13 +323,13 @@ void loop() {
     dc_Right();
     inductionSensor(positionAngle, true);
     dc_Stop();
-    delay(200);
+    delay(20);
     potRelease();
     delay(20);
     dc_Left();
     inductionSensor(positionAngle, false);
     dc_Stop();
-    delay(200);
+    delay(20);
     Serial.println("4");
   }
   else if (positionInt == 3) {
@@ -340,13 +340,13 @@ void loop() {
     inductionSensor(positionAngle, true);
     delay(dcDelay);
     dc_Stop();
-    delay(200);
+    delay(20);
     potRelease();
     delay(20);
     dc_Left();
     inductionSensor(positionAngle, false);
     dc_Stop();
-    delay(200);
+    delay(20);
     Serial.println("3");
   }
   else if (positionInt == 1) {
@@ -357,13 +357,13 @@ void loop() {
     inductionSensor(positionAngle, true);
     delay(dcDelay);
     dc_Stop();
-    delay(200);
+    delay(20);
     potRelease();
     delay(20);
     dc_Left();
     inductionSensor(positionAngle, false);
     dc_Stop();
-    delay(200);
+    delay(20);
     Serial.println("1");
   }
   positionInt = 0;
@@ -490,15 +490,15 @@ void potGrab() {
   while(analogRead(cylinderInSensor) > 450){}
   delay(200);
   
-//  for (int x = 0; x < delayWaitingTime; x++) {
-//        delay(10);
-//        if (analogRead(cylinderInSensor) < 450) {
-//          break;
-//        }
-//      }
-//      if (analogRead(cylinderInSensor) < 450) {
-//        Serial.println("CYLINDER_OPEN_ERROR");
-//      }
+  for (int x = 0; x < delayWaitingTime; x++) {
+        delay(10);
+        if (analogRead(cylinderInSensor) < 450) {
+          break;
+        }
+      }
+      if (analogRead(cylinderInSensor) < 450) {
+        Serial.println("CYLINDER_OPEN_ERROR");
+      }
   Serial.println("For loop voorbij");
 
   stepperUp(); //dit kan de verkeerde kant op zijn
@@ -508,16 +508,16 @@ void potGrab() {
   while(analogRead(cylinderOutSensor) > 450){}
   delay(1000);
 
-//  for (int x = 0; x < delayWaitingTime; x++) {
-//        delay(10);
-//        if (analogRead(cylinderOutSensor) < 450) {
-//          break;
-//        }
-//      }
-//      if (analogRead(cylinderOutSensor) < 450) {
-//        Serial.println("CYLINDER_CLOSE_ERROR");
-//      }
-//  Serial.println("Potje oppakken voltooid");
+  for (int x = 0; x < delayWaitingTime; x++) {
+        delay(10);
+        if (analogRead(cylinderOutSensor) < 450) {
+          break;
+        }
+      }
+      if (analogRead(cylinderOutSensor) < 450) {
+        Serial.println("CYLINDER_CLOSE_ERROR");
+      }
+  Serial.println("Potje oppakken voltooid");
 }
 
 //potje neerzetten
@@ -526,17 +526,17 @@ void potRelease() {
   Serial.println("cylinder op HIGH");
 
   digitalWrite(cylinder, HIGH);
-  while(analogRead(cylinderOutSensor) > 450){}
+  while(analogRead(cylinderInSensor) > 450){}
   
-//  for (int x = 0; x < delayWaitingTime; x++) {
-//        delay(10);
-//        if (analogRead(cylinderInSensor) < 450) {
-//          break;
-//        }
-//      }
-//  if (analogRead(cylinderInSensor) < 450) {
-//    Serial.println("CYLINDER_OPEN_ERROR");
-//  }
+  for (int x = 0; x < delayWaitingTime; x++) {
+        delay(10);
+        if (analogRead(cylinderInSensor) < 450) {
+          break;
+        }
+      }
+  if (analogRead(cylinderInSensor) < 450) {
+    Serial.println("CYLINDER_OPEN_ERROR");
+  }
 
   
   stepperDown();
@@ -544,17 +544,17 @@ void potRelease() {
 
   Serial.println("cylinder op LOW");
   digitalWrite(cylinder, LOW);
-  while(analogRead(cylinderInSensor) > 450){}
+  while(analogRead(cylinderOutSensor) > 450){}
   
-//  for (int x = 0; x < delayWaitingTime; x++) {
-//        delay(10);
-//        if (analogRead(cylinderOutSensor) < 450) {
-//          break;
-//        }
-//      }
-//   if (analogRead(cylinderOutSensor) < 450) {
-//        Serial.println("CYLINDER_CLOSE_ERROR");
-//   }
+  for (int x = 0; x < delayWaitingTime; x++) {
+        delay(10);
+        if (analogRead(cylinderOutSensor) < 450) {
+          break;
+        }
+      }
+   if (analogRead(cylinderOutSensor) < 450) {
+        Serial.println("CYLINDER_CLOSE_ERROR");
+   }
 
   Serial.println("Potje neerzetten voltooid");
 }
